@@ -2,6 +2,7 @@ import cv2
 import read_files
 import shrink_img
 import time
+from shutil import copyfile
 
 def read_img_file_names(file):
     names = []
@@ -11,8 +12,11 @@ def read_img_file_names(file):
             entry[1] = entry[1][:-1]
             names.append(entry)
     return names
+
+def copy_img(path, data_type, img_type, extension):
+    copyfile(path, '../{}/{}/{}'.format(data_type, img_type, extension))
     
-def get_greyscale_shrunk_images(l, xres, yres):
+def get_greyscale_shrunk_images(names, xres, yres):
     i = 0
     for entry in names:
         for index, file_name in enumerate(entry):
@@ -26,8 +30,8 @@ def get_greyscale_shrunk_images(l, xres, yres):
         i += 1
     
 if __name__ == '__main__':
-    names = read_img_file_names('img_names.txt')
+    files = ['../train.txt', '../test.txt', '../val.txt']
     start = time.time()
-    get_greyscale_shrunk_images(names, 64, 64)
+
     end = time.time()
     print('It took ' + str(end - start) + 'seconds')
