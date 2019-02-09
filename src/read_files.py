@@ -39,12 +39,25 @@ def print_list(l):
         print(str(l[i]) + (',' if i != len(l) - 1 else ''))
     print(']')
 
+def create_updated_list(read_file, write_file):
+    img_names = change_abs_dir(get_images_from_list(get_jpg_names_from_file(read_file)), '../Sony')
+    f = open(write_file, 'w')
+    for entry in img_names:
+        f.write(entry[0] + ' ' + entry[1] + '\n')
+    
 if __name__ == '__main__':
+    inputs = ['../Sony_train_list.txt', '../Sony_test_list.txt', '../Sony_val_list.txt']
+    outputs = ['../train.txt', '../test.txt', '../val.txt']
+    for i in range(len(inputs)):
+        create_updated_list(inputs[i], outputs[i])
+    pass
+    '''
     data = get_jpg_names_from_file('../Sony_train_list.txt')
     images_name = get_images_from_list(data)
     images_name = change_abs_dir(images_name, '..')
     f = open('img_names.txt', 'w')
     for entry in images_name:
         f.write(entry[0] + ' ' + entry[1] + '\n')
+    '''
 
 
