@@ -1,6 +1,6 @@
 import keras
 from keras.layers import Dense
-
+from obtain_images import obtain_data
 
 class AutoEncoder:
 	def __init__(self, decay_rate):
@@ -25,9 +25,17 @@ class AutoEncoder:
 
 	def fit_model(self, batch_size, epochs, verbose, name):
 		# to do:
-		# (self.train_x, self.train_y) = get_data()
+		(train_x, train_y) = get_data()
 		# (self.test_x, self.test_y) = get_data()
 		# (self.val_x, self.val_y) = get_data()
+		datagen = ImageDataGenerator(
+			featurewise_center=True,
+			featurewise_std_normalization=True,
+			rotation_range=20,
+			width_shift_range=0.2,
+			height_shift_range=0.2,
+			horizontal_flip=True)
+
 		self.model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
 			steps_per_epoch=len(x_train) / batch_size, epochs=epochs, shuffle=True, verbose=verbose, validation_data=[test_x, test_y])
 		self.model.save('AutoEncoder-bs{}-ep{}'.format(batch_size,epochs) + '.h5')
