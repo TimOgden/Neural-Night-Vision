@@ -22,5 +22,11 @@ def obtain_data(filename, amount=-1, transform=lambda x: x):
         i += 1
     return (np.array(short_exposures), np.array(long_exposures))
             
+def shrink_func(xres, yres):
+    return lambda x: cv2.resize(x, dsize(xres, yres), interpolation=cv2.INTERCUBIC)
+
+def greyscale_func():
+    return lambda x: cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
+
 if __name__ == '__main__':
     obtain_data('../train.txt', amount=32)
