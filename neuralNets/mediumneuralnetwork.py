@@ -1,7 +1,7 @@
 import keras
 from keras.layers import Dense
-
-class SimpleNeuralNetwork:
+import matplotlib.pyplot as plt
+class MediumNeuralNetwork:
 	def __init__(self):
 		self.model = build_model()
 
@@ -10,6 +10,10 @@ class SimpleNeuralNetwork:
 		model = keras.Sequential([
 				Flatten(input_shape=(64,64,1,)),
 				Dense(4096, activation='relu'), #4096 = 64*64
+				Dense(4000, activation='relu'),
+				Dense(4000, activation='relu'),
+				Dense(4000, activation='relu'),
+				Dense(4000, activation='relu'),
 				Dense(4000, activation='relu'),
 				Dense(4000, activation='relu'),
 				Dense(4096, activation='relu')

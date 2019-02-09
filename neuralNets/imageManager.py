@@ -9,4 +9,5 @@ class ImageManager:
 	def postprocess(self, img, img_shape=(64,64,1)):
 		# Unflatten
 		img = img.reshape(img_shape)
+		img * 255
 		return img
