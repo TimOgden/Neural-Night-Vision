@@ -9,3 +9,7 @@ def show(img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+if __name__ == '__main__':
+    img = cv2.imread('../long/00001_00_10s.jpg', cv2.IMREAD_COLOR)
+    img = shrink(img, 64, 64)
+    show(img)

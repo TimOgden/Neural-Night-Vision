@@ -11,9 +11,40 @@ def get_jpg_names_from_file(file):
             updated_file_names.append(parsed_line)
     return updated_file_names
 
-def print_list(l):
+def change_abs_dir(l, new_dir):
+    updated_file_names = []
     for entry in l:
-        print(entry)
-        
-print_list(get_jpg_names_from_file('../Sony_train_list.txt'))
+        new_entry = []
+        for file_name in entry:
+            changed_fn = file_name.split('/')
+            changed_fn = [new_dir] + changed_fn[2:]
+            changed_fn = '/'.join(changed_fn)
+            new_entry.append(changed_fn)
+        updated_file_names.append(new_entry)
+    return updated_file_names
+    
+    
+def get_images_from_list(l):
+    images = []
+    for entry in l:
+        images.append(entry[:2])
+    return images
+
+def get_images_from_file(file):
+    return change_abs_dir(get_images_from_list(get_jpg_names_from_file(file)), '..')
+    
+def print_list(l):
+    print('[')
+    for i in range(len(l)):
+        print(str(l[i]) + (',' if i != len(l) - 1 else ''))
+    print(']')
+
+if __name__ == '__main__':
+    data = get_jpg_names_from_file('../Sony_train_list.txt')
+    images_name = get_images_from_list(data)
+    images_name = change_abs_dir(images_name, '..')
+    f = open('img_names.txt', 'w')
+    for entry in images_name:
+        f.write(entry[0] + ' ' + entry[1] + '\n')
+
 
