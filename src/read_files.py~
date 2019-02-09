@@ -1,8 +1,0 @@
-
-def get_jpg_names_from_file(file):
-    with open(file) as fp:
-        for line in fp:
-            parsed_line = line.split(' ')
-            for i in range(0, 2):
-                parsed_line[i] = '.'(parsed_line[i].split('.').pop.append('jpg'))
-            print(parsed_line)
