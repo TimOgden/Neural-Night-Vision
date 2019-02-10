@@ -40,7 +40,7 @@ class ConvolutionalNeuralNetwork:
 				UpSampling2D((2, 2)),
 				Conv2D(self.n_channels, (1, 1), padding='same', activation='sigmoid', kernel_initializer=keras.initializers.he_normal())
 			])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.01), loss='mean_squared_error', metrics=['accuracy'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.001), loss='mean_squared_error', metrics=['mean_squared_error'])
 		return model
 
 	def fit_model(self, batch_size=1, epochs=10, verbose=1, amount=-1, track_losses=False):
@@ -110,9 +110,4 @@ class ConvolutionalNeuralNetwork:
 
 if __name__ == '__main__':
     neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=1)
-    neuralNet.load_model('ConvolutionalNeuralNetwork-bs2000-ep6-10.h5', 7)
-#    neuralNet.fit_model(epochs=10, batch_size=2000)
-
-    neuralNet.predict(3)
-    neuralNet.predict(5)
-    neuralNet.predict(23)
+    neuralNet.fit_model(epochs=100, batch_size=2000)
