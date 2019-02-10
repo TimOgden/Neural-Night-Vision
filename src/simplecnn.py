@@ -15,10 +15,10 @@ class ConvolutionalNeuralNetwork:
 
 
 	def preprocess(self, x):
-		x = x.astype('float32') / 255.
-		x = np.array(x)
-		x = np.expand_dims(x, axis=3)
-		return x # no flatten
+		if self.n_channels == 1:
+			x = np.array(x)
+			x = np.expand_dims(x, axis=3)
+		return x.astype('float32') / 255 # no flatten
 
 	#Here is where we will define what the model architecture is:
 	def build_model(self):
@@ -31,7 +31,7 @@ class ConvolutionalNeuralNetwork:
 				Conv2D(128, (2, 2), padding='same'),
 				UpSampling2D((2, 2)),
 				UpSampling2D((2, 2)),
-				Conv2D(1, (2,2), padding='same')
+				Conv2D(self.n_channels, (2,2), padding='same')
 			])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0003), loss='mean_squared_error', metrics=['accuracy'])
 		return model
@@ -44,10 +44,11 @@ class ConvolutionalNeuralNetwork:
 		for epoch in range(epochs):
 			recent_losses = []
 			for batch_index in range(num_batches):
-				(train_x_batch, train_y_batch) = get_batch('../new_train.txt', batch_index, batch_size, transform=shrink_greyscale_func(self.x_res,self.y_res,1))
+				(train_x_batch, train_y_batch) = get_batch('../new_train.txt', batch_index, batch_size, transform=shrink_greyscale_func(self.x_res,self.y_res,self.n_channels))
 				train_x_batch = self.preprocess(train_x_batch)
 				#print(train_x_batch.shape)
 				train_y_batch = self.preprocess(train_y_batch)
+
 				loss = self.model.train_on_batch(x=train_x_batch, y=train_y_batch)
 				train_y_batch = None
 				train_x_batch = None
