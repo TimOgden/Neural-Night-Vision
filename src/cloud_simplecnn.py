@@ -26,15 +26,15 @@ class ConvolutionalNeuralNetwork:
 	def build_model(self):
 		size = self.x_res * self.y_res * self.n_channels
 		model = keras.Sequential([
-				Conv2D(32, (2,2), padding='same', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels)),
+				Conv2D(32, (2,2), padding='same', activation='relu', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels)),
 				MaxPooling2D((2,2)),
-				Conv2D(64, (2,2), padding='same'),
+				Conv2D(64, (2,2), padding='same', activation='relu'),
 				MaxPooling2D((2, 2)),
-				Conv2D(128, (2, 2), padding='same'),
+				Conv2D(128, (2, 2), padding='same', activation='relu'),
 				UpSampling2D((2, 2)),	
-				Conv2D(64, (2, 2), padding='same'),
+				Conv2D(64, (2, 2), padding='same', activation='relu'),
 				UpSampling2D((2, 2)),
-				Conv2D(self.n_channels, (2,2), padding='same')
+				Conv2D(self.n_channels, (2,2), padding='same', activation='sigmoid')
 			])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.00001), loss='mean_squared_error', metrics=['accuracy'])
 		return model
