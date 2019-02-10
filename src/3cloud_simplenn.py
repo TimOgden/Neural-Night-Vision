@@ -111,4 +111,8 @@ class ConvolutionalNeuralNetwork:
 if __name__ == '__main__':
     neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=1)
     neuralNet.load_model('ConvolutionalNeuralNetwork-bs2000-ep6-10.h5', 7)
-    neuralNet.fit_model(epochs=10, batch_size=2000)
+#    neuralNet.fit_model(epochs=10, batch_size=2000)
+
+    neuralNet.predict(3)
+    neuralNet.predict(5)
+    neuralNet.predict(23)
