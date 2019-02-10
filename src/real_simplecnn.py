@@ -4,7 +4,7 @@ from keras.models import load_model
 from obtain_images import *
 import numpy as np
 import obtain_images
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from keras import backend as K
 import math
 #from statistics import mean
@@ -27,33 +27,27 @@ class ConvolutionalNeuralNetwork:
 		size = self.x_res * self.y_res * self.n_channels
 		model = keras.Sequential([
 				Conv2D(32, (3,3), activation='relu', padding='same', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels)),
-                                Conv2D(32, (3, 3), activation='relu', padding='same'),
+				Conv2D(32, (3, 3), activation='relu', padding='same'),
 				MaxPooling2D((2,2)),
-                                Dropout(0.2),
 				Conv2D(64, (3,3), activation='relu', padding='same'),
-                                Conv2D(64, (3,3), activation='relu', padding='same'),
+				Conv2D(64, (3,3), activation='relu', padding='same'),
 				MaxPooling2D((2, 2)),
-                                Dropout(0.2),
 				Conv2D(128, (3, 3), activation='relu',  padding='same'),
-                                Conv2D(128, (1, 1), activation='relu', padding='same'),
-                                MaxPooling2D((2, 2)),
-                                Dropout(0.2),
-                                Conv2D(256, (3, 3), activation='relu', padding='same'),
-                                Conv2D(256, (3, 3), activation='relu', padding='same'),
-                                MaxPooling2D((2, 2)),
-                                Dropout(0.2),
-                                Conv2D(512, (3, 3), activation='relu', padding='same'),
-                                Conv2D(512, (3, 3), activation='relu', padding='same'),
-                                UpSampling2D((2, 2)),
-                                Dropout(0.2),
-                                Conv2D(256, (3, 3), activation='relu', padding='same'),
-                                Conv2D(256, (3, 3), activation='relu', padding='same'),
-                                UpSampling2D((2, 2)),
-                                Dropout(0.2),
-                                Conv2D(128, (3, 3), activation='relu', padding='same'),
+				Conv2D(128, (1, 1), activation='relu', padding='same'),
+				MaxPooling2D((2, 2)),
+				Conv2D(256, (3, 3), activation='relu', padding='same'),
+				Conv2D(256, (3, 3), activation='relu', padding='same'),
+				MaxPooling2D((2, 2)),
+				Conv2D(512, (3, 3), activation='relu', padding='same'),
+				Conv2D(512, (3, 3), activation='relu', padding='same'),
+				UpSampling2D((2, 2)),
+				Conv2D(256, (3, 3), activation='relu', padding='same'),
+				Conv2D(256, (3, 3), activation='relu', padding='same'),
+				UpSampling2D((2, 2)),
+				Conv2D(128, (3, 3), activation='relu', padding='same'),
 				UpSampling2D((2, 2)),	
 				Conv2D(64, (3, 3),  activation='relu',padding='same'),
-                                Conv2D(64, (3, 3),  activation='relu',padding='same'),
+				Conv2D(64, (3, 3),  activation='relu',padding='same'),
 				UpSampling2D((2, 2)),
 				Conv2D(self.n_channels, (3, 3), activation='sigmoid', padding='same')
 			])
@@ -88,7 +82,7 @@ class ConvolutionalNeuralNetwork:
 				#print('Average loss of epoch {} was {}'.format(epoch+1, mean(recent_losses)))
 				
 				if epoch % 1 == 0:
-					self.model.save_weights('ConvolutionalNeuralNetwork-bs{}-ep{}-{}'.format(batch_size,epoch,epochs) + '.h5')
+					self.model.save_weights('OverfitNeuralNetwork-bs{}-ep{}-{}'.format(batch_size,epoch,epochs) + '.h5')
 				if epoch % 20 == 0:
 					if track_losses:
 						pass
