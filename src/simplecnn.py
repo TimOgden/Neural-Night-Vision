@@ -31,11 +31,16 @@ class ConvolutionalNeuralNetwork:
 				Conv2D(64, (2,2), padding='same'),
 				MaxPooling2D((2, 2)),
 				Conv2D(128, (2, 2), padding='same'),
+				MaxPooling2D((2, 2)),
+				Conv2D(256, (2, 2), padding='same'),
 				UpSampling2D((2, 2)),
+				Conv2D(128, (2, 2), padding='same'),
+				UpSampling2D((2, 2)),
+				Conv2D(64, (2, 2), padding='same'),
 				UpSampling2D((2, 2)),
 				Conv2D(self.n_channels, (2,2), padding='same')
 			])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0003), loss='mean_squared_error', metrics=['accuracy'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00001, decay=1e-6), loss='mean_squared_error', metrics=['accuracy'])
 		return model
 
 	def fit_model(self, batch_size=1, epochs=10, verbose=1, amount=-1, track_losses=False):
@@ -109,7 +114,7 @@ class ConvolutionalNeuralNetwork:
 	def load_model(self, name):
 		self.model = load_model(name)
 if __name__ == '__main__':
-	neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=1)
+	neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=3)
 	#print(neuralNet.model.summary())
 	neuralNet.fit_model(amount=-1, batch_size=32, epochs=1000, track_losses=True)
 	#neuralNet.load_model('ConvolutionalNeuralNetwork-bs32-ep5-(128,128).h5')
