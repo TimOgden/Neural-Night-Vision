@@ -1,11 +1,12 @@
 import keras
 from keras.layers import Dense, Flatten
+from keras.models import load_model
 from obtain_images import *
 import numpy as np
 import obtain_images
+import matplotlib.pyplot as plt
 #from keras.preprocessing.images import ImageDataGenerator
-from keras import backend as K
-print(K.tensorflow_backend._get_available_gpus())
+
 class SimpleNeuralNetwork:
 
 
@@ -40,14 +41,25 @@ class SimpleNeuralNetwork:
 		self.model.save('SimpleNeuralNetwork-bs{}-ep{}'.format(batch_size,epochs) + '.h5')
 
 	def test_model(self):
-		(val_x, val_y) = obtain_data('../val.txt', amount=1, transform=shrink_greyscale_func(self.x_res,self.y_res,self.n_channels))
-		val_x = self.preprocess(val_x)
-		val_y = self.preprocess(val_y)
+		(val_x, val_y) = obtain_data('../val.txt', amount=-1, transform=shrink_greyscale_func(self.x_res,self.y_res,self.n_channels))
+		val_x = preprocess(val_x)
+		val_y = preprocess(val_y)
 		results = self.model.evaluate(x=val_x, y=val_y)
 		print('Accuracy was {}'.format(results[1]))
 
-	def predict(self, index=0):
-		img = self.model.predict()
+	def predict(self, index):
+		(test_x, _) = obtain_data('../test.txt', amount=-1, transform=shrink_greyscale_func(self.x_res,self.y_res,self.n_channels))
+		#print(test_x)
+		
+
+		plt.imshow(test_x[index], cmap='gray')
+		plt.show()
+		#print(test_x.shape)
+		test_x = self.preprocess(test_x)
+		print(test_x[index].shape)
+		val = test_x[index].reshape(-1, 1024)
+		img = self.model.predict(val)
+		img = img.reshape(self.x_res, self.y_res, self.n_channels)
 		plt.imshow(img)
 		plt.show()
 
@@ -56,8 +68,13 @@ class SimpleNeuralNetwork:
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.model = self.build_model()
+		self.val_x = None
+		self.val_y = None
 
+	def load_model(self, name):
+		self.model = load_model(name)
 if __name__ == '__main__':
 	neuralNet = SimpleNeuralNetwork(x_res=32, y_res=32, n_channels=1)
-	neuralNet.fit_model()
-	#neuralNet.test_model()
+	#neuralNet.fit_model(amount=500)
+	neuralNet.load_model('SimpleNeuralNetwork-bs3-ep10.h5')
+	neuralNet.predict(index=0)
