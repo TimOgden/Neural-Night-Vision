@@ -1,36 +1,58 @@
 import keras
-from keras.layers import Dense
+from keras.layers import Dense, Flatten
+from obtain_images import *
+import numpy as np
+import obtain_images
+#from keras.preprocessing.images import ImageDataGenerator
 
 class SimpleNeuralNetwork:
-	def __init__(self):
-		self.model = build_model()
+
+
+	def preprocess(self, x):
+		x = x.astype('float32') / 255.
+		return x.reshape(-1, np.prod(x.shape[1:])) # flatten
 
 	#Here is where we will define what the model architecture is:
-	def build_model():
+	def build_model(self):
+		neuron_count = self.input_dim[0]*self.input_dim[1]*self.input_dim[2]
 		model = keras.Sequential([
-				Flatten(input_shape=(64,64,1,)),
-				Dense(4096, activation='relu'), #4096 = 64*64
-				Dense(4000, activation='relu'),
-				Dense(4000, activation='relu'),
-				Dense(4096, activation='relu')
+				Dense(neuron_count, activation='relu', input_shape=(neuron_count,)),
+				Dense(neuron_count, activation='relu'),
+				Dense(neuron_count, activation='relu'),
+				Dense(neuron_count, activation='relu')
 			])
 		model.compile(optimizer='Adam', loss='mean_squared_error', metrics=['accuracy'])
 		return model
 
-	def fit_model(self, batch_size=32, epochs=10, verbose=1):
+	def fit_model(self, batch_size=1, epochs=10, verbose=1):
 		# to do:
-		# (self.train_x, self.train_y) = get_data('Sony_train_list.txt')
-		# (self.test_x, self.test_y) = get_data()
-		# (self.val_x, self.val_y) = get_data()
-		self.model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
-			steps_per_epoch=len(x_train) / batch_size, epochs=epochs, shuffle=True, verbose=verbose, validation_data=[test_x, test_y])
-		#self.model.fit(x=train_x, y=train_y, batch_size=batch_size, epochs=epochs, verbose=verbose, validation_data=[test_x, test_y])
+		print('Hello')
+		(train_x, train_y) = obtain_data('../train.txt', amount=1, transform=lambda x: shrink_func(270, 404)(grayscale_func()(x)))
+		(test_x, test_y) = obtain_data('../test.txt', amount=1, transform=lambda x: shrink_func(270, 404)(grayscale_func()(x)))
+		train_x = self.preprocess(train_x)
+		train_y = self.preprocess(train_y)
+		test_x = self.preprocess(test_x)
+		test_y = self.preprocess(test_y)
+		#self.model.fit_generator(datagen.flow(x_train, y_train, batch_size=batch_size),
+			#steps_per_epoch=len(x_train) / batch_size, epochs=epochs, shuffle=True, verbose=verbose, validation_data=[test_x, test_y])
+		self.model.fit(x=train_x, y=train_y, batch_size=batch_size, epochs=epochs, verbose=verbose)
 		self.model.save('SimpleNeuralNetwork-bs{}-ep{}'.format(batch_size,epochs) + '.h5')
 
 	def test_model(self):
-		self.model.evaluate(x=self.val_x, y=self.val_y)
+		(val_x, val_y) = obtain_data('../val.txt')
+		results = self.model.evaluate(x=val_x, y=val_y)
+		print('Accuracy was {}'.format(results[1]))
 
 	def predict(self, index=0):
 		img = self.model.predict()
 		plt.imshow(img)
 		plt.show()
+
+	def __init__(self, input_dim):
+		self.input_dim = input_dim
+		self.model = self.build_model()
+
+if __name__ == '__main__':
+	neuralNet = SimpleNeuralNetwork((1080,1616,3))
+	neuralNet.fit_model()
+	neuralNet.test_model()
