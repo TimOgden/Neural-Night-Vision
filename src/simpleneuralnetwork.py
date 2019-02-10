@@ -27,8 +27,8 @@ class SimpleNeuralNetwork:
 	def fit_model(self, batch_size=1, epochs=10, verbose=1):
 		# to do:
 		print('Hello')
-		(train_x, train_y) = obtain_data('../train.txt', amount=1, transform=lambda x: shrink_func(270, 404)(grayscale_func()(x)))
-		(test_x, test_y) = obtain_data('../test.txt', amount=1, transform=lambda x: shrink_func(270, 404)(grayscale_func()(x)))
+		(train_x, train_y) = obtain_data('../train.txt', amount=1, transform=shrink_greyscale_func(270,404))
+		(test_x, test_y) = obtain_data('../test.txt', amount=1, transform=shrink_greyscale_func(270,404))
 		train_x = self.preprocess(train_x)
 		train_y = self.preprocess(train_y)
 		test_x = self.preprocess(test_x)
@@ -53,6 +53,6 @@ class SimpleNeuralNetwork:
 		self.model = self.build_model()
 
 if __name__ == '__main__':
-	neuralNet = SimpleNeuralNetwork((1080,1616,3))
+	neuralNet = SimpleNeuralNetwork((270,404,1))
 	neuralNet.fit_model()
 	neuralNet.test_model()

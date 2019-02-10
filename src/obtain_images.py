@@ -29,7 +29,7 @@ def greyscale_func():
     return lambda x: cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
 
 def shrink_greyscale_func(xres, yres):
-    return lambda x: cv2.resize(cv2.cvtColor(x, cv2.COLOR_BGR2GRAY), dsize(xres, yres), interpolation=cv2.INTERCUBIC)
+    return lambda x: cv2.resize(cv2.cvtColor(x, cv2.COLOR_BGR2GRAY), dsize=(xres, yres), interpolation=cv2.INTER_CUBIC)
 
 if __name__ == '__main__':
     obtain_data('../train.txt', amount=32)
