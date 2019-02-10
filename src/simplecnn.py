@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from keras import backend as K
 import math
 from statistics import mean
+import time
+from os.path import exists
 
 print(K.tensorflow_backend._get_available_gpus())
 
@@ -39,6 +41,7 @@ class ConvolutionalNeuralNetwork:
 	def fit_model(self, batch_size=1, epochs=10, verbose=1, amount=-1, track_losses=False):
 		
 		# to do:
+		
 		num_batches = math.ceil(1863/batch_size)
 		losses = []
 		for epoch in range(epochs):
@@ -48,21 +51,26 @@ class ConvolutionalNeuralNetwork:
 				train_x_batch = self.preprocess(train_x_batch)
 				#print(train_x_batch.shape)
 				train_y_batch = self.preprocess(train_y_batch)
-
+				start = time.time()
 				loss = self.model.train_on_batch(x=train_x_batch, y=train_y_batch)
+				print('time {}'.format(time.time() - start))
 				train_y_batch = None
 				train_x_batch = None
 				print('Epoch {} of {}, batch {} of {}'.format(epoch+1,epochs,batch_index+1,num_batches))
 				print('Loss was {}'.format(loss[0]))
+				print('Accuracy was {}'.format(loss[1]))
 				recent_losses.append(loss[0])
 				losses.append(loss[0])
 			#print('Average loss of epoch {} was {}'.format(epoch+1, mean(recent_losses)))
+			
 			if epoch % 20 == 0:
-				self.model.save('ConvolutionalNeuralNetwork-bs{}-ep{}/{}'.format(batch_size,epoch,epochs) + '.h5')
+				self.model.save_weights('ConvolutionalNeuralNetwork-bs{}-ep{}-{}'.format(batch_size,epoch,epochs) + '.h5')
 			if epoch % 20 == 0:
 				if track_losses:
 					plt.plot(losses)
-					plt.show()
+					plt.show(block=False)
+					plt.pause(1)
+					plt.close()
 		self.model.save('ConvolutionalNeuralNetwork-bs{}-ep{}-({},{})'.format(batch_size,epochs,self.x_res,self.y_res) + '.h5')
 
 	def test_model(self):
@@ -101,8 +109,8 @@ class ConvolutionalNeuralNetwork:
 	def load_model(self, name):
 		self.model = load_model(name)
 if __name__ == '__main__':
-	neuralNet = ConvolutionalNeuralNetwork(x_res=512, y_res=512, n_channels=3)
-	print(neuralNet.model.summary())
+	neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=1)
+	#print(neuralNet.model.summary())
 	neuralNet.fit_model(amount=-1, batch_size=32, epochs=1000, track_losses=True)
 	#neuralNet.load_model('ConvolutionalNeuralNetwork-bs32-ep5-(128,128).h5')
 	neuralNet.predict(index=23)
