@@ -26,21 +26,13 @@ class ConvolutionalNeuralNetwork:
 	def build_model(self):
 		size = self.x_res * self.y_res * self.n_channels
 		model = keras.Sequential([
-				Conv2D(32, (2,2), padding='same', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels)),
+				Conv2D(32, (2,2), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				MaxPooling2D((2,2)),
 				Conv2D(64, (2,2), padding='same'),
-				MaxPooling2D((2, 2)),
-				Conv2D(128, (2, 2), padding='same'),
-				MaxPooling2D((2, 2)),
-				Conv2D(256, (2, 2), padding='same'),
-				UpSampling2D((2, 2)),
-				Conv2D(128, (2, 2), padding='same'),
-				UpSampling2D((2, 2)),
-				Conv2D(64, (2, 2), padding='same'),
 				UpSampling2D((2, 2)),
 				Conv2D(self.n_channels, (2,2), padding='same')
 			])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00001, decay=1e-6), loss='mean_squared_error', metrics=['accuracy'])
+		model.compile(optimizer=keras.optimizers.Adam(), loss='mean_squared_error', metrics=['accuracy'])
 		return model
 
 	def fit_model(self, batch_size=1, epochs=10, verbose=1, amount=-1, track_losses=False):
@@ -58,17 +50,18 @@ class ConvolutionalNeuralNetwork:
 				train_y_batch = self.preprocess(train_y_batch)
 				start = time.time()
 				loss = self.model.train_on_batch(x=train_x_batch, y=train_y_batch)
-				print('time {}'.format(time.time() - start))
 				train_y_batch = None
 				train_x_batch = None
-				print('Epoch {} of {}, batch {} of {}'.format(epoch+1,epochs,batch_index+1,num_batches))
-				print('Loss was {}'.format(loss[0]))
-				print('Accuracy was {}'.format(loss[1]))
+				if batch_index % 5 == 0:
+					print('time {}'.format(time.time() - start))
+					print('Epoch {} of {}, batch {} of {}'.format(epoch+1,epochs,batch_index+1,num_batches))
+					print('Loss was {}'.format(loss[0]))
+					print('Accuracy was {}'.format(loss[1]))
 				recent_losses.append(loss[0])
 				losses.append(loss[0])
 			#print('Average loss of epoch {} was {}'.format(epoch+1, mean(recent_losses)))
 			
-			if epoch % 20 == 0:
+			if epoch:
 				self.model.save_weights('ConvolutionalNeuralNetwork-bs{}-ep{}-{}'.format(batch_size,epoch,epochs) + '.h5')
 			if epoch % 20 == 0:
 				if track_losses:
@@ -112,12 +105,16 @@ class ConvolutionalNeuralNetwork:
 		self.val_y = None
 
 	def load_model(self, name):
-		self.model = load_model(name)
+		self.model.load_weights(name)
 if __name__ == '__main__':
-	neuralNet = ConvolutionalNeuralNetwork(x_res=128, y_res=128, n_channels=3)
+	neuralNet = ConvolutionalNeuralNetwork(x_res=64, y_res=64, n_channels=3)
 	#print(neuralNet.model.summary())
-	neuralNet.fit_model(amount=-1, batch_size=32, epochs=1000, track_losses=True)
-	#neuralNet.load_model('ConvolutionalNeuralNetwork-bs32-ep5-(128,128).h5')
+	#neuralNet.fit_model(amount=-1, batch_size=128, epochs=1000, track_losses=True)
+	neuralNet.load_model('ConvolutionalNeuralNetwork-bs1000-ep20-1000.h5')
+	neuralNet.predict(index=23)
+	neuralNet.predict(index=5)
+	neuralNet.predict(index=11)
+	neuralNet.load_model('ConvolutionalNeuralNetwork-bs1000-ep32-1000.h5')
 	neuralNet.predict(index=23)
 	neuralNet.predict(index=5)
 	neuralNet.predict(index=11)

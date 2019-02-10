@@ -11,6 +11,7 @@ import math
 import time
 from os.path import exists
 from sklearn.utils import shuffle
+import cv2
 print(K.tensorflow_backend._get_available_gpus())
 
 class ConvolutionalNeuralNetwork:
@@ -108,6 +109,7 @@ class ConvolutionalNeuralNetwork:
 		val = np.expand_dims(val, axis=0)
 		print(val.shape)
 		img = self.model.predict(val)
+		img = cv2.equalizeHist(img)
 		img = img.reshape(self.x_res, self.y_res)
 		plt.imshow(img, cmap='gray')
 		plt.title('After')
