@@ -23,7 +23,7 @@ def obtain_data(filename, amount=-1, transform=lambda x: x):
     return (np.array(short_exposures), np.array(long_exposures))
             
 def shrink_func(xres, yres):
-    return lambda x: cv2.resize(x, dsize(xres, yres), interpolation=cv2.INTERCUBIC)
+    return lambda x: cv2.resize(x, dsize=(xres, yres), interpolation=cv2.INTER_CUBIC)
 
 def greyscale_func():
     return lambda x: cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
