@@ -10,6 +10,7 @@ import math
 import tensorflow as tf
 import cv2
 import numpy as np
+from statistics import mean
 class Dark_Image_CNN:
 	def init_datagens(self):
 		self.datagen_trainx = ImageDataGenerator(
@@ -46,13 +47,17 @@ class Dark_Image_CNN:
 		num_batches = math.ceil(1863/self.batch_size)
 		for epoch in range(self.epochs):
 			print('Epoch:', epoch+1)
+			batch_loss = []
 			for batch in range(num_batches):
 				x_train, y_train = self.get_batch()
 				print('original shapes:', x_train.shape, y_train.shape)
 				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				#print('reshaped x_train:', x_train.shape)
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
-				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=1)
+				loss = self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=1)
+				batch_loss.append(loss[0])
+			self.model.save('cnn-epoch{}'.format(epoch+1))
+			print('Epoch loss:',mean(batch_loss))
 
 
 
