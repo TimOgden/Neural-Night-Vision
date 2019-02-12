@@ -81,8 +81,14 @@ class Dark_Image_CNN:
 			x_train = []
 			y_train = []
 			for i in range(self.batch_size):
-				rand_index = random.randint(0,len(self.unused_files))
-				rand_el = self.unused_files[rand_index]
+				
+				rand_el = None
+				while rand_el is None:
+					try:
+						rand_index = random.randint(0,len(self.unused_files))
+						rand_el = self.unused_files[rand_index]
+					except IndexError as e:
+						print('Got index error, trying again')
 				space = lst[rand_el].index(' ')
 				x_train.append(lst[rand_el][:space].strip())
 				y_train.append(lst[rand_el][space+1:].strip())
