@@ -55,7 +55,7 @@ class Dark_Image_CNN:
 				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				#print('reshaped x_train:', x_train.shape)
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
-				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=1)
+				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=2, steps_per_epoch=len(x_train)/self.batch_size)
 
 			self.model.save('cnn-epoch{}'.format(epoch+1))
 
@@ -109,7 +109,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	with tf.device('/cpu:0'):
-		cnn = Dark_Image_CNN(4,10, gpus=1)
+		cnn = Dark_Image_CNN(16,10, gpus=1)
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
 	cnn.fit_model()
