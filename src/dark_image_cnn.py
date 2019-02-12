@@ -1,9 +1,12 @@
 # Let's try this one last time
+import os
 import keras
 from keras.preprocessing.image import ImageDataGenerator
+from keras import backend as K
+K.tensorflow_backend._get_available_gpus()
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D
 import math
-import os
+import tensorflow as tf
 import cv2
 import numpy as np
 class Dark_Image_CNN:
@@ -23,10 +26,8 @@ class Dark_Image_CNN:
 
 	def build_model(self):
 		model = keras.Sequential([
-			Conv2D(32, (3,3), padding='same', activation='relu', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels), kernel_initializer=keras.initializers.he_normal()),
+			Conv2D(64, (3,3), padding='same', activation='relu', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels), kernel_initializer=keras.initializers.he_normal()),
 			MaxPooling2D((2,2)),
-			Conv2D(64, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
-			MaxPooling2D((2, 2)),
 			Conv2D(128, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
 			MaxPooling2D((2, 2)),
 			Conv2D(256, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
@@ -34,8 +35,7 @@ class Dark_Image_CNN:
 			Conv2D(128, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
 			UpSampling2D((2, 2)),	
 			Conv2D(64, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
-			UpSampling2D((2, 2)),
-			Conv2D(self.n_channels, (2, 2), padding='same', activation='sigmoid', kernel_initializer=keras.initializers.he_normal())
+			Conv2D(self.n_channels, (1, 1), padding='same', activation='sigmoid', kernel_initializer=keras.initializers.he_normal())
 		])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
@@ -47,6 +47,10 @@ class Dark_Image_CNN:
 			print('Epoch:', epoch+1)
 			for batch in range(num_batches):
 				x_train, y_train = self.get_batch()
+				print('original shapes:', x_train.shape, y_train.shape)
+				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
+				#print('reshaped x_train:', x_train.shape)
+				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=1)
 
 
@@ -58,10 +62,14 @@ class Dark_Image_CNN:
 		img_x_train = []
 		img_y_train = []
 		for i in range(len(x_train)):
-			img_x = cv2.imread(x_train[i])
-			img_y = cv2.imread(y_train[i])
-			img_x_train.append(img_x)
-			img_y_train.append(img_y)
+			try:
+				img_x = cv2.imread(x_train[i])
+				img_y = cv2.imread(y_train[i][:-1])  # y_train will have a \n or ' ' at end, so must remove it
+				
+				img_x_train.append(img_x)
+				img_y_train.append(img_y)
+			except IndexError as e:
+				pass
 
 		self.current_batch_index+=self.batch_size
 		return np.array(img_x_train), np.array(img_y_train)
@@ -88,5 +96,8 @@ class Dark_Image_CNN:
 		self.model = self.build_model()
 		self.fit_model()
 if __name__=='__main__':
-	cnn = Dark_Image_CNN(32,10)
+	cnn = None
+	with tf.device('/cpu:0'):
+		cnn = Dark_Image_CNN(8,10)
+	cnn = multi_gpu_model(cnn,gpus=2)
 	cnn.fit_model()
