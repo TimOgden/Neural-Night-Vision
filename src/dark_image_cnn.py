@@ -47,7 +47,7 @@ class Dark_Image_CNN:
 	def fit_model(self):
 		num_batches = math.ceil(1863/self.batch_size)
 		for epoch in range(self.epochs):
-			for batch in range(num_batches):
+			for batch in range(int(num_batches)):
 				percent = batch/num_batches*100
 				print('{:.1f} percent done with epoch {}'.format(percent,epoch+1))
 				x_train, y_train = self.get_batch()
@@ -56,7 +56,7 @@ class Dark_Image_CNN:
 				#print('reshaped x_train:', x_train.shape)
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=1)
-			
+
 			self.model.save('cnn-epoch{}'.format(epoch+1))
 
 
