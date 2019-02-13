@@ -8,9 +8,9 @@ from keras.utils.training_utils import multi_gpu_model
 print('Available gpus:',K.tensorflow_backend._get_available_gpus())
 from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D
 import math
+import numpy as np
 import tensorflow as tf
 import cv2
-import numpy as np
 from statistics import mean
 import random
 import sys
@@ -120,7 +120,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 6
+	batch_size = 32
 	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
