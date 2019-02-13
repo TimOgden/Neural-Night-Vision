@@ -1,5 +1,5 @@
 import keras
-import real_simplecnn as nn
+import johnsnetwork as nn
 from obtain_images import *
 import matplotlib.pyplot as plt
 if __name__=='__main__':
