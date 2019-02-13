@@ -40,7 +40,7 @@ class Dark_Image_CNN:
 			UpSampling2D((2, 2)),
 			Conv2D(self.n_channels, (1, 1), padding='same', activation='sigmoid', kernel_initializer=keras.initializers.he_normal())
 		])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00002, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
 		return model
 
