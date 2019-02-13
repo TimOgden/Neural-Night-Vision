@@ -117,7 +117,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	with tf.device('/cpu:0'):
-		cnn = Dark_Image_CNN(24,10, gpus=1)
+		cnn = Dark_Image_CNN(19,10, gpus=1)
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
 	cnn.fit_model()
