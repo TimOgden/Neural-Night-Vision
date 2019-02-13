@@ -6,7 +6,7 @@ from keras import backend as K
 from keras.models import load_model
 from keras.utils.training_utils import multi_gpu_model
 print('Available gpus:',K.tensorflow_backend._get_available_gpus())
-from keras.layers import Conv2D, MaxPooling2D, UpSampling2D
+from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D
 import math
 import tensorflow as tf
 import cv2
@@ -32,15 +32,11 @@ class Dark_Image_CNN:
 
 	def build_model(self):
 		model = keras.Sequential([
-			Conv2D(64, (3,3), padding='same', activation='relu', data_format="channels_last", input_shape=(self.x_res,self.y_res,self.n_channels), kernel_initializer=keras.initializers.he_normal()),
+			UpSampling2D((2,2), input_shape=(self.x_res,self.y_res,self.n_channels)),
+			Conv2D(64, (3,3), padding='same', activation='relu', data_format="channels_last", kernel_initializer=keras.initializers.he_normal()),
 			MaxPooling2D((2,2)),
-			Conv2D(128, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
-			MaxPooling2D((2, 2)),
-			Conv2D(256, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
-			UpSampling2D((2, 2)),
-			Conv2D(128, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal()),
-			UpSampling2D((2, 2)),
-			Conv2D(self.n_channels, (1, 1), padding='same', activation='sigmoid', kernel_initializer=keras.initializers.he_normal())
+			Dropout(.1),
+			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.00002, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
@@ -69,8 +65,10 @@ class Dark_Image_CNN:
 		x_train, y_train = self.get_files()
 		for i in range(len(x_train)):
 			try:
-				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
-				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
+				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
+				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
+				#img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080))
+				#img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080))
 				img_x = np.expand_dims(img_x, axis=3)
 				img_y = np.expand_dims(img_y, axis=3)
 				img_x_train.append(img_x)
@@ -122,15 +120,19 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
+	batch_size = 26
+	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
 	except:
 		pass
 	with tf.device('/cpu:0'):
 		if last_epoch is not None:
-			cnn = Dark_Image_CNN(16,10, gpus=1, last_epoch=last_epoch)
+			cnn = Dark_Image_CNN(batch_size,10, gpus=1, last_epoch=last_epoch)
 		else:
-			cnn = Dark_Image_CNN(16,10,gpus=1,last_epoch=0)
+			cnn = Dark_Image_CNN(batch_size,10,gpus=1,last_epoch=0)
+		
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
 	cnn.fit_model()
+	print('done')
