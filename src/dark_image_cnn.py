@@ -38,7 +38,7 @@ class Dark_Image_CNN:
 			Dropout(.1),
 			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00002, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00001, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
 		return model
 
@@ -120,7 +120,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 16
+	batch_size = 10
 	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
