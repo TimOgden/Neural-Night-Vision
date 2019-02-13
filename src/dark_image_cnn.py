@@ -3,6 +3,7 @@ import os
 import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
+from keras.models import load_model
 from keras.utils.training_utils import multi_gpu_model
 print('Available gpus:',K.tensorflow_backend._get_available_gpus())
 from keras.layers import Conv2D, MaxPooling2D, UpSampling2D
@@ -12,6 +13,7 @@ import cv2
 import numpy as np
 from statistics import mean
 import random
+import sys
 
 class Dark_Image_CNN:
 	def init_datagens(self):
@@ -57,7 +59,7 @@ class Dark_Image_CNN:
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=2, steps_per_epoch=len(x_train)/self.batch_size)
 
-			self.model.save('cnn-epoch{}'.format(epoch+1))
+			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
 
 
@@ -102,7 +104,7 @@ class Dark_Image_CNN:
 			lst = f.readlines()
 			return len(lst)
 
-	def __init__(self, batch_size, epochs, gpus=1):
+	def __init__(self, batch_size, epochs, gpus=1, last_epoch=0):
 		self.batch_size = batch_size
 		self.unused_files = list(range(int(self.get_file_len('../new_train.txt'))))
 		self.epochs = epochs
@@ -113,11 +115,22 @@ class Dark_Image_CNN:
 		self.gpus = gpus
 		self.init_datagens()
 		self.model = self.build_model()
+		self.last_epoch = last_epoch
+		if self.last_epoch>0:
+			self.model = load_model('cnn-epoch{}'.format(self.last_epoch+1))
 
 if __name__=='__main__':
 	cnn = None
+	last_epoch = None
+	try:
+		last_epoch = int(sys.argv[0])
+	except:
+		pass
 	with tf.device('/cpu:0'):
-		cnn = Dark_Image_CNN(16,10, gpus=1)
+		if last_epoch is not None:
+			cnn = Dark_Image_CNN(16,10, gpus=1, last_epoch=last_epoch)
+		else:
+			cnn = Dark_Image_CNN(16,10,gpus=1,last_epoch=0)
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
 	cnn.fit_model()
