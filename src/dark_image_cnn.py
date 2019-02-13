@@ -120,7 +120,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 26
+	batch_size = 64
 	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
