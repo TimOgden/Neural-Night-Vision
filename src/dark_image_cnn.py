@@ -67,8 +67,8 @@ class Dark_Image_CNN:
 		x_train, y_train = self.get_files()
 		for i in range(len(x_train)):
 			try:
-				img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080))
-				img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080))
+				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
+				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
 				img_x_train.append(img_x)
 				img_y_train.append(img_y)
 			except IndexError as e:
@@ -107,7 +107,7 @@ class Dark_Image_CNN:
 		self.current_batch_index = 0
 		self.x_res = 1080
 		self.y_res = 1616
-		self.n_channels = 3
+		self.n_channels = 1
 		self.gpus = gpus
 		self.init_datagens()
 		self.model = self.build_model()
@@ -115,7 +115,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	with tf.device('/cpu:0'):
-		cnn = Dark_Image_CNN(8,10, gpus=1)
+		cnn = Dark_Image_CNN(24,10, gpus=1)
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
 	cnn.fit_model()
