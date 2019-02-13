@@ -69,6 +69,8 @@ class Dark_Image_CNN:
 			try:
 				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
 				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY)
+				img_x = np.expand_dims(img_x, axis=3)
+				img_y = np.expand_dims(img_y, axis=3)
 				img_x_train.append(img_x)
 				img_y_train.append(img_y)
 			except IndexError as e:
