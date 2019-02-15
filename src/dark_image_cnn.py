@@ -30,9 +30,9 @@ class Dark_Image_CNN:
 		print(model.summary())
 		return model
 
-	def fit_model(self):
+	def fit_model_manual(self):
 
-		num_batches = math.ceil(1863/self.batch_size)
+		num_batches = math.ceil(self.num_training_samples/self.batch_size)
 		for epoch in range(self.epochs):
 			losses = []
 			acc = []
@@ -41,7 +41,7 @@ class Dark_Image_CNN:
 				percent = batch/num_batches*100
 				print('Batch {} - {:.1f} percent done with epoch {}'.format(batch,percent,epoch+1))
 				x_train, y_train = self.get_batch()
-				#print('original shapes:', x_train.shape, y_train.shape)
+				print('original shapes:', x_train.shape, y_train.shape)
 				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				#print('reshaped x_train:', x_train.shape)
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
@@ -60,7 +60,9 @@ class Dark_Image_CNN:
 			np.save(np.array(acc), 'acc-epoch{}'.format(acc))
 			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
-
+	def fit_model(self):
+		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
+			steps_per_epoch=math.ceil(self.num_training_samples/self.batch_size), epochs=10)
 
 	def get_batch(self):
 		img_x_train = []
@@ -94,9 +96,7 @@ class Dark_Image_CNN:
 						rand_el = self.unused_files[rand_index]
 					except IndexError as e:
 						print('Got index error, trying again')
-				space = lst[rand_el].index(' ')
-				x_train.append(lst[rand_el][:space].strip())
-				y_train.append(lst[rand_el][space+1:].strip())
+				
 				self.unused_files.remove(rand_el)	
 			return x_train, y_train
 
@@ -104,6 +104,25 @@ class Dark_Image_CNN:
 		with open(file,'r') as f:
 			lst = f.readlines()
 			return len(lst)
+
+	def generate_arrays_from_file(self,path):
+		while True:
+			with open(path) as f:
+				for line in f:
+					# create numpy arrays of input data
+					# and labels, from each line in the file
+					x1, y = self.process_line(line)
+					yield ({'up_sampling2d_1_input': x1}, {'conv2d_2': y})
+
+	def process_line(self,line):
+		space = line.index(' ')
+		x_train = line[:space].strip()
+		y_train = line[space+1:].strip()
+		img_x = cv2.resize(cv2.imread(x_train), (1616,1080)) / 255.
+		img_y = cv2.resize(cv2.imread(y_train), (1616,1080)) / 255.
+		img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))
+		img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
+		return img_x, img_y
 
 	def __init__(self, batch_size, epochs, gpus=1, last_epoch=0):
 		self.batch_size = batch_size
@@ -113,6 +132,7 @@ class Dark_Image_CNN:
 		self.x_res = 1080
 		self.y_res = 1616
 		self.n_channels = 1
+		self.num_training_samples = 1863
 		self.gpus = gpus
 		self.model = self.build_model()
 		self.last_epoch = last_epoch
@@ -122,7 +142,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 4
+	batch_size = 64
 	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
