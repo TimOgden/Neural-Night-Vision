@@ -1,8 +1,12 @@
 import matplotlib.pyplot as plt
+import pickle
 losses = []
 while True:
 	x = input('Loss:')
-	losses.append(float(x))
-	for c,i in enumerate(losses):
-		plt.scatter(c+1, i)
-	plt.show()
+	if x=='show':
+		plt.plot(losses)
+		plt.show()
+	if x=='remove':
+		losses.remove(losses[-1])
+	else:
+		losses.append(float(x))

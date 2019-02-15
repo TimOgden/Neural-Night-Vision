@@ -12,49 +12,52 @@ import numpy as np
 import tensorflow as tf
 import cv2
 from statistics import mean
+import matplotlib.pyplot as plt
 import random
 import sys
+import time
 
 class Dark_Image_CNN:
-	def init_datagens(self):
-		self.datagen_trainx = ImageDataGenerator(
-			rescale=1./255,
-			rotation_range=10,
-			width_shift_range=0.2,
-			height_shift_range=0.2,
-			horizontal_flip=True)
-		self.datagen_trainy = ImageDataGenerator(
-			rescale=1./255,
-			rotation_range=10,
-			width_shift_range=0.2,
-			height_shift_range=0.2,
-			horizontal_flip=True)
 
 	def build_model(self):
 		model = keras.Sequential([
 			UpSampling2D((2,2), input_shape=(self.x_res,self.y_res,self.n_channels)),
 			Conv2D(64, (3,3), padding='same', activation='relu', data_format="channels_last", kernel_initializer=keras.initializers.he_normal()),
 			MaxPooling2D((2,2)),
-			Dropout(.1),
 			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00001, decay=1e-5), loss='mean_squared_error', metrics=['mean_squared_error'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0000001), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
 		return model
 
 	def fit_model(self):
+
 		num_batches = math.ceil(1863/self.batch_size)
 		for epoch in range(self.epochs):
+			losses = []
+			acc = []
 			for batch in range(int(num_batches)):
+				start_time = time.time()
 				percent = batch/num_batches*100
-				print('{:.1f} percent done with epoch {}'.format(percent,epoch+1))
+				print('Batch {} - {:.1f} percent done with epoch {}'.format(batch,percent,epoch+1))
 				x_train, y_train = self.get_batch()
 				#print('original shapes:', x_train.shape, y_train.shape)
 				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
 				#print('reshaped x_train:', x_train.shape)
 				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
-				self.model.fit_generator(self.datagen_trainx.flow(x_train, y_train), verbose=2, steps_per_epoch=len(x_train)/self.batch_size)
-
+				loss = self.model.train_on_batch(x_train, y_train)
+				losses.append(loss[0])
+				acc.append(loss[1])
+				if batch % 10 == 0:
+					plt.plot(losses)
+					plt.plot(acc)
+					plt.show(block=False)
+					plt.pause(7)
+					plt.close()
+				time_elapsed = time.time() - start_time
+				print('Loss:', loss[0], '- time:',time_elapsed,'seconds')
+			np.save(np.array(losses), 'loss-epoch{}'.format(epoch))
+			np.save(np.array(acc), 'acc-epoch{}'.format(acc))
 			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
 
@@ -67,8 +70,8 @@ class Dark_Image_CNN:
 			try:
 				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
 				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
-				#img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080))
-				#img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080))
+				#img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080)) / 255.
+				#img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080)) / 255.
 				img_x = np.expand_dims(img_x, axis=3)
 				img_y = np.expand_dims(img_y, axis=3)
 				img_x_train.append(img_x)
@@ -111,7 +114,6 @@ class Dark_Image_CNN:
 		self.y_res = 1616
 		self.n_channels = 1
 		self.gpus = gpus
-		self.init_datagens()
 		self.model = self.build_model()
 		self.last_epoch = last_epoch
 		if self.last_epoch>0:
@@ -120,7 +122,7 @@ class Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 8
+	batch_size = 4
 	print(batch_size)
 	try:
 		last_epoch = int(sys.argv[0])
