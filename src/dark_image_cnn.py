@@ -26,7 +26,7 @@ class Dark_Image_CNN:
 			MaxPooling2D((2,2)),
 			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0000001), loss='mean_squared_error', metrics=['mean_squared_error'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
 		return model
 
