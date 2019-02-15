@@ -1,11 +1,8 @@
 # Let's try this one last time
 import os
 import keras
-from keras.preprocessing.image import ImageDataGenerator
-from keras import backend as K
 from keras.models import load_model
-from keras.utils.training_utils import multi_gpu_model
-print('Available gpus:',K.tensorflow_backend._get_available_gpus())
+from keras.callbacks import ModelCheckpoint
 from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D
 import math
 import numpy as np
@@ -26,6 +23,7 @@ class Dark_Image_CNN:
 			MaxPooling2D((2,2)),
 			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
+		self.callback = ModelCheckpoint('best_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='max')
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_squared_error', metrics=['mean_squared_error'])
 		print(model.summary())
 		return model
@@ -61,8 +59,11 @@ class Dark_Image_CNN:
 			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
 	def fit_model(self):
-		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
-			steps_per_epoch=math.ceil(self.num_training_samples/self.batch_size), epochs=10)
+		for epoch in range(10):
+			self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
+				steps_per_epoch=math.ceil(self.num_training_samples/self.batch_size), epochs=1, initial_epoch=epoch+1,
+				validation_data=self.generate_arrays_from_file('../new_test.txt'), callbacks=[self.callback])
+			self.model.save('cnn-epoch{}'.format(epoch+1))
 
 	def get_batch(self):
 		img_x_train = []
@@ -70,12 +71,12 @@ class Dark_Image_CNN:
 		x_train, y_train = self.get_files()
 		for i in range(len(x_train)):
 			try:
-				img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
-				img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
-				#img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080)) / 255.
-				#img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080)) / 255.
-				img_x = np.expand_dims(img_x, axis=3)
-				img_y = np.expand_dims(img_y, axis=3)
+				#img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
+				#img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
+				img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080)) / 255.
+				img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080)) / 255.
+				#img_x = np.expand_dims(img_x, axis=3)
+				#img_y = np.expand_dims(img_y, axis=3)
 				img_x_train.append(img_x)
 				img_y_train.append(img_y)
 			except IndexError as e:
@@ -131,7 +132,7 @@ class Dark_Image_CNN:
 		self.current_batch_index = 0
 		self.x_res = 1080
 		self.y_res = 1616
-		self.n_channels = 1
+		self.n_channels = 3
 		self.num_training_samples = 1863
 		self.gpus = gpus
 		self.model = self.build_model()
@@ -150,9 +151,9 @@ if __name__=='__main__':
 		pass
 	with tf.device('/cpu:0'):
 		if last_epoch is not None:
-			cnn = Dark_Image_CNN(batch_size,10, gpus=1, last_epoch=last_epoch)
+			cnn = Dark_Image_CNN(batch_size,10, last_epoch=last_epoch)
 		else:
-			cnn = Dark_Image_CNN(batch_size,10,gpus=1,last_epoch=0)
+			cnn = Dark_Image_CNN(batch_size,10,last_epoch=0)
 		
 
 	#cnn = multi_gpu_model(cnn,gpus=1)
