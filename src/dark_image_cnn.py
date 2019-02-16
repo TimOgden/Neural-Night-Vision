@@ -23,9 +23,9 @@ class Dark_Image_CNN:
 			MaxPooling2D((2,2)),
 			Conv2D(self.n_channels, (3, 3), padding='same', activation='relu', kernel_initializer=keras.initializers.he_normal())
 		])
-		self.callback = ModelCheckpoint('best_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='max')
+		self.callback = ModelCheckpoint('best_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_squared_error', metrics=['mean_squared_error'])
-		print(model.summary())
+		#print(model.summary())
 		return model
 
 	def fit_model_manual(self):
@@ -59,11 +59,9 @@ class Dark_Image_CNN:
 			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
 	def fit_model(self):
-		for epoch in range(10):
-			self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
-				steps_per_epoch=math.ceil(self.num_training_samples/self.batch_size), epochs=1, initial_epoch=epoch+1,
-				validation_data=self.generate_arrays_from_file('../new_test.txt'), callbacks=[self.callback])
-			self.model.save('cnn-epoch{}'.format(epoch+1))
+		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
+			steps_per_epoch=math.ceil(self.num_training_samples/self.batch_size), epochs=10,
+			validation_data=self.generate_arrays_from_file('../new_test.txt'), validation_steps=3, callbacks=[self.callback])
 
 	def get_batch(self):
 		img_x_train = []
@@ -125,7 +123,10 @@ class Dark_Image_CNN:
 		img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
 		return img_x, img_y
 
-	def __init__(self, batch_size, epochs, gpus=1, last_epoch=0):
+	def predict(self, img):
+		return self.model.predict(img)
+
+	def __init__(self, batch_size, epochs, gpus=1):
 		self.batch_size = batch_size
 		self.unused_files = list(range(int(self.get_file_len('../new_train.txt'))))
 		self.epochs = epochs
@@ -136,9 +137,6 @@ class Dark_Image_CNN:
 		self.num_training_samples = 1863
 		self.gpus = gpus
 		self.model = self.build_model()
-		self.last_epoch = last_epoch
-		if self.last_epoch>0:
-			self.model = load_model('cnn-epoch{}'.format(self.last_epoch+1))
 
 if __name__=='__main__':
 	cnn = None
