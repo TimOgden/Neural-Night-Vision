@@ -58,7 +58,7 @@ class Large_Dark_Image_CNN:
 			])
 		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error', metrics=['mean_absolute_error'])
-		#print(model.summary())
+		print(model.summary())
 		return model
 
 
