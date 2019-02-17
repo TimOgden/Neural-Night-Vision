@@ -81,10 +81,13 @@ class Large_Dark_Image_CNN:
 		return model
 
 
-	def fit_model(self, batch_size, epochs):
+	def fit_model(self, batch_size, epochs, initial_epoch):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
-			steps_per_epoch=math.ceil(self.num_training_samples/batch_size), epochs=epochs,
-			validation_data=self.generate_arrays_from_file('../new_test.txt'), validation_steps=26, callbacks=[self.callback])
+			steps_per_epoch=math.ceil(self.num_training_samples/batch_size), epochs=epochs, initial_epoch=initial_epoch,
+			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26, callbacks=[self.callback])
+
+	def load_model(self, file):
+		self.model = load_model(file)
 
 	def generate_arrays_from_file(self,path):
 		while True:
@@ -122,11 +125,13 @@ class Large_Dark_Image_CNN:
 
 if __name__=='__main__':
 	cnn = None
-	last_epoch = None
+	initial_epoch = 5
 	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
+
 	with tf.device('/cpu:0'):
 		cnn = Large_Dark_Image_CNN(1080, 1616, 3)
-	cnn.fit_model(batch_size, num_epochs)
+	#cnn.model = load_model('paper_model_weights.h5')
+	cnn.fit_model(batch_size, num_epochs, initial_epoch)
 	print('done')
