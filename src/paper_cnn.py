@@ -95,47 +95,6 @@ class Large_Dark_Image_CNN:
 			steps_per_epoch=math.ceil(self.num_training_samples/batch_size), epochs=epochs,
 			validation_data=self.generate_arrays_from_file('../new_test.txt'), validation_steps=26, callbacks=[self.callback])
 
-	def get_batch(self):
-		img_x_train = []
-		img_y_train = []
-		x_train, y_train = self.get_files()
-		for i in range(len(x_train)):
-			try:
-				#img_x = cv2.cvtColor(cv2.resize(cv2.imread(x_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
-				#img_y = cv2.cvtColor(cv2.resize(cv2.imread(y_train[i]), (1616,1080)), cv2.COLOR_BGR2GRAY) / 255.
-				img_x = cv2.resize(cv2.imread(x_train[i]), (1616,1080)) / 255.
-				img_y = cv2.resize(cv2.imread(y_train[i]), (1616,1080)) / 255.
-				#img_x = np.expand_dims(img_x, axis=3)
-				#img_y = np.expand_dims(img_y, axis=3)
-				img_x_train.append(img_x)
-				img_y_train.append(img_y)
-			except IndexError as e:
-				pass
-		return np.array(img_x_train), np.array(img_y_train)
-
-	def get_files(self):
-		with open('../new_train.txt','r') as f:
-			lst = f.readlines()
-			x_train = []
-			y_train = []
-			for i in range(self.batch_size):
-				
-				rand_el = None
-				while rand_el is None:
-					try:
-						rand_index = random.randint(0,len(self.unused_files))
-						rand_el = self.unused_files[rand_index]
-					except IndexError as e:
-						print('Got index error, trying again')
-				
-				self.unused_files.remove(rand_el)	
-			return x_train, y_train
-
-	def get_file_len(self, file):
-		with open(file,'r') as f:
-			lst = f.readlines()
-			return len(lst)
-
 	def generate_arrays_from_file(self,path):
 		while True:
 			with open(path) as f:
