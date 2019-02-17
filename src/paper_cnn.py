@@ -56,39 +56,11 @@ class Large_Dark_Image_CNN:
 
 				Conv2D(12, padding='same', strides=(1,1), activation=None)
 			])
-		self.callback = ModelCheckpoint('best_larger_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0005, decay=1e-5), loss='mean_absolute_error', metrics=['mean_absolute_error'])
+		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error', metrics=['mean_absolute_error'])
 		#print(model.summary())
 		return model
 
-	def fit_model_manual(self):
-		num_batches = math.ceil(self.num_training_samples/self.batch_size)
-		for epoch in range(self.epochs):
-			losses = []
-			acc = []
-			for batch in range(int(num_batches)):
-				start_time = time.time()
-				percent = batch/num_batches*100
-				print('Batch {} - {:.1f} percent done with epoch {}'.format(batch,percent,epoch+1))
-				x_train, y_train = self.get_batch()
-				print('original shapes:', x_train.shape, y_train.shape)
-				x_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
-				#print('reshaped x_train:', x_train.shape)
-				y_train.reshape(-1,self.x_res,self.y_res,self.n_channels)
-				loss = self.model.train_on_batch(x_train, y_train)
-				losses.append(loss[0])
-				acc.append(loss[1])
-				if batch % 10 == 0:
-					plt.plot(losses)
-					plt.plot(acc)
-					plt.show(block=False)
-					plt.pause(7)
-					plt.close()
-				time_elapsed = time.time() - start_time
-				print('Loss:', loss[0], '- time:',time_elapsed,'seconds')
-			np.save(np.array(losses), 'loss-epoch{}'.format(epoch))
-			np.save(np.array(acc), 'acc-epoch{}'.format(acc))
-			self.model.save('cnn-epoch{}'.format(epoch+1+self.last_epoch))
 
 	def fit_model(self, batch_size, epochs):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
@@ -102,7 +74,8 @@ class Large_Dark_Image_CNN:
 					# create numpy arrays of input data
 					# and labels, from each line in the file
 					x1, y = self.process_line(line)
-					yield ({'conv2d_1_input': x1}, {'conv2d_7': y})
+					for x_batch, y_batch in self.datagen.flow(x1,y):
+						yield ({'conv2d_1_input': x_batch}, {'conv2d_7': y_batch})
 
 	def process_line(self,line):
 		space = line.index(' ')
@@ -118,18 +91,18 @@ class Large_Dark_Image_CNN:
 		return self.model.predict(img)
 
 	def __init__(self, x_res, y_res, n_channels):
-		self.unused_files = list(range(int(self.get_file_len('../new_train.txt'))))
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.num_training_samples = 1863
 		self.model = self.build_model()
+		self.datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=20)
 
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
 	batch_size = 128
-	num_epochs = 
+	num_epochs = 4000
 	print(batch_size)
 	with tf.device('/cpu:0'):
 		cnn = Large_Dark_Image_CNN(1080, 1616, 3)
