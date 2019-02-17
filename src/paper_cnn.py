@@ -75,8 +75,9 @@ class Large_Dark_Image_CNN:
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
+		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=0, mode='min')
 		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error', metrics=['mean_absolute_error'])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-7), loss='mean_absolute_error', metrics=['mean_absolute_error'])
 		print(model.summary())
 		return model
 
@@ -125,13 +126,12 @@ class Large_Dark_Image_CNN:
 
 if __name__=='__main__':
 	cnn = None
-	initial_epoch = 5
+	initial_epoch = 0
 	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 
 	with tf.device('/cpu:0'):
 		cnn = Large_Dark_Image_CNN(1080, 1616, 3)
-	#cnn.model = load_model('paper_model_weights.h5')
 	cnn.fit_model(batch_size, num_epochs, initial_epoch)
 	print('done')
