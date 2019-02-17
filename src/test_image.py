@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from dark_image_cnn import Dark_Image_CNN
 from larger_dark_image_cnn import Large_Dark_Image_CNN
+from paper_cnn import Paper_CNN
 from keras.models import load_model
 import time
 
@@ -41,15 +42,14 @@ def process_line(line):
 
 
 if __name__=='__main__':
-	short_filename = '10003_06_0.1s.jpg'
-	long_filename = '10003_00_10s.jpg'
-	with tf.device('/cpu:0'):
-		model = Large_Dark_Image_CNN(32,10) # 32 and 10 are the batch size and number of epochs, which is irrelevant in this case but whatevs
-		#model.model = load_model('best_larger_model_weights.h5')
-	original_image = load_norm_img('../short/' + short_filename)
-	gray_original = load_gray('../short/' + short_filename)
-	desired_image = load_norm_img('../long/' + long_filename)
-	img = load_norm_img('../short/' + short_filename)
+	short_filename = '../Sony/short/10003_06_0.1s.jpg'
+	long_filename = '../Sony/long/10003_00_10s.jpg'
+	model = Paper_CNN(1080,1616,3)
+	model.load_model('paper_model_weights.h5')
+	original_image = load_norm_img(short_filename)
+	gray_original = load_gray(short_filename)
+	desired_image = load_norm_img(long_filename)
+	img = load_norm_img(short_filename)
 	model_time = time.time()
 	y_hat = model.predict(reshape_img(img))[0]
 	y_hat = clean_up_prediction(y_hat)

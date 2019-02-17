@@ -15,7 +15,7 @@ import random
 import sys
 import time
 
-class Large_Dark_Image_CNN:
+class Paper_CNN:
 
 	def build_model(self):
 		model = keras.Sequential([
@@ -23,61 +23,70 @@ class Large_Dark_Image_CNN:
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 
 				UpSampling2D(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 
 				UpSampling2D(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 
 				UpSampling2D(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 
 				UpSampling2D(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
+				Dropout(.4),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
 		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=0, mode='min')
-		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-7), loss='mean_absolute_error', metrics=['mean_absolute_error'])
+		self.callback2 = ModelCheckpoint('paper_model.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error', metrics=['mean_absolute_error'])
 		print(model.summary())
 		return model
 
@@ -85,7 +94,7 @@ class Large_Dark_Image_CNN:
 	def fit_model(self, batch_size, epochs, initial_epoch):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
 			steps_per_epoch=math.ceil(self.num_training_samples/batch_size), epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26, callbacks=[self.callback])
+			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26, callbacks=[self.callback, self.callback2])
 
 	def load_model(self, file):
 		self.model = load_model(file)
@@ -97,6 +106,8 @@ class Large_Dark_Image_CNN:
 					# create numpy arrays of input data
 					# and labels, from each line in the file
 					x1, y = self.process_line(line)
+					if x1 is None or y is None:
+						continue
 					for x_batch, y_batch in self.datagen.flow(x1,y):
 						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
@@ -104,8 +115,12 @@ class Large_Dark_Image_CNN:
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
-		img_x = cv2.resize(cv2.imread(x_train), (1616,1080)) / 255.
-		img_y = cv2.resize(cv2.imread(y_train), (1616,1080)) / 255.
+		img_x = cv2.imread(x_train)
+		img_y = cv2.imread(y_train)
+		if img_x is None or img_y is None:
+			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
+		img_x = cv2.resize(img_x, (1616,1080)) / 255.
+		img_y = cv2.resize(img_y, (1616,1080)) / 255.
 		img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))
 		img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
 		return img_x, img_y
@@ -115,6 +130,9 @@ class Large_Dark_Image_CNN:
 
 	def depth_to_space(self, input_tensor):
 		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
+
+	def load_model(self, file):
+		self.model.load_weights(file)
 
 	def __init__(self, x_res, y_res, n_channels):
 		self.x_res = x_res
@@ -127,11 +145,11 @@ class Large_Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
 	with tf.device('/cpu:0'):
-		cnn = Large_Dark_Image_CNN(1080, 1616, 3)
+		cnn = Paper_CNN(1080, 1616, 3)
 	cnn.fit_model(batch_size, num_epochs, initial_epoch)
 	print('done')
