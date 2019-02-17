@@ -4,7 +4,7 @@ import keras
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint
-from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D
+from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D, LeakyReLU, Lambda
 import math
 import numpy as np
 import tensorflow as tf
@@ -19,42 +19,61 @@ class Large_Dark_Image_CNN:
 
 	def build_model(self):
 		model = keras.Sequential([
-				Conv2D(32, padding='same', strides=(3,3), activation='leaky_relu', input_shape=(self.x_res,self.y_res,self.n_channels)),
-				Conv2D(32, padding='same',strides=(3,3), activation='leaky_relu'),
+				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
+				LeakyReLU(),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(64, padding='same',strides=(3,3), activation='leaky_relu'),
-				Conv2D(64, padding='same',strides=(3,3), activation='leaky_relu'),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(128, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(128, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(256, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(256, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(512, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(512, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(512, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(512, (3,3), padding='same'),
+				LeakyReLU(),
 
 				UpSampling2D(),
-				Conv2D(256, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(256, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
 
 				UpSampling2D(),
-				Conv2D(128, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(128, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
 
 				UpSampling2D(),
-				Conv2D(64, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(64, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
 
 				UpSampling2D(),
-				Conv2D(32, padding='same', strides=(3,3), activation='leaky_relu'),
-				Conv2D(32, padding='same', strides=(3,3), activation='leaky_relu'),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
 
-				Conv2D(12, padding='same', strides=(1,1), activation=None)
+				Conv2D(12, (1,1), padding='same', activation=None),
+				Lambda(self.depth_to_space)
 			])
 		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error', metrics=['mean_absolute_error'])
@@ -75,7 +94,7 @@ class Large_Dark_Image_CNN:
 					# and labels, from each line in the file
 					x1, y = self.process_line(line)
 					for x_batch, y_batch in self.datagen.flow(x1,y):
-						yield ({'conv2d_1_input': x_batch}, {'conv2d_7': y_batch})
+						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
 	def process_line(self,line):
 		space = line.index(' ')
@@ -89,6 +108,9 @@ class Large_Dark_Image_CNN:
 
 	def predict(self, img):
 		return self.model.predict(img)
+
+	def depth_to_space(self, input_tensor):
+		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
 
 	def __init__(self, x_res, y_res, n_channels):
 		self.x_res = x_res
