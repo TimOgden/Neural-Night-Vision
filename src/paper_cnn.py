@@ -101,7 +101,7 @@ class Large_Dark_Image_CNN:
 if __name__=='__main__':
 	cnn = None
 	last_epoch = None
-	batch_size = 128
+	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 	with tf.device('/cpu:0'):
