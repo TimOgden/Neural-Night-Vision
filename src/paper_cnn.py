@@ -3,7 +3,7 @@ import os
 import keras
 from keras.models import load_model
 from keras.preprocessing.image import ImageDataGenerator
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, TensorBoard
 from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D, LeakyReLU, Lambda
 import math
 import numpy as np
@@ -23,69 +23,70 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 
 				UpSampling2D(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 
 				UpSampling2D(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 
 				UpSampling2D(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 
 				UpSampling2D(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.4),
+				Dropout(.5),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
 		self.callback = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=0, mode='min')
 		self.callback2 = ModelCheckpoint('paper_model.h5', monitor='val_loss', save_best_only=True, verbose=1, mode='min')
+		self.tensorboard = TensorBoard(log_dir='./logs/', batch_size=128)
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error', metrics=['mean_absolute_error'])
 		print(model.summary())
 		return model
@@ -94,7 +95,7 @@ class Paper_CNN:
 	def fit_model(self, batch_size, epochs, initial_epoch):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
 			steps_per_epoch=math.ceil(self.num_training_samples/batch_size), epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26, callbacks=[self.callback, self.callback2])
+			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26, callbacks=[self.callback, self.callback2, self.tensorboard])
 
 	def load_model(self, file):
 		self.model = load_model(file)
@@ -144,12 +145,13 @@ class Paper_CNN:
 
 if __name__=='__main__':
 	cnn = None
-	initial_epoch = 0
+	initial_epoch = 57
 	batch_size = 128
-	num_epochs = 4000
+	num_epochs = 2000
 	print(batch_size)
 
 	with tf.device('/cpu:0'):
 		cnn = Paper_CNN(1080, 1616, 3)
+	cnn.load_model('paper_model_weights.h5')
 	cnn.fit_model(batch_size, num_epochs, initial_epoch)
 	print('done')
