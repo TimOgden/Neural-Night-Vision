@@ -2,6 +2,7 @@
 import os
 import keras
 from keras.models import load_model
+from keras.utils.training_utils import multi_gpu_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras.layers import Conv2D, Dropout, UpSampling2D, MaxPooling2D, LeakyReLU, Lambda
@@ -14,6 +15,10 @@ import matplotlib.pyplot as plt
 import random
 import sys
 import time
+from keras import backend as K
+
+os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   # see issue #152
+os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 
 class Paper_CNN:
 
@@ -84,10 +89,10 @@ class Paper_CNN:
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
-		self.save_best = ModelCheckpoint('paper_model_weights.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
+		self.save_best = ModelCheckpoint('paper_model_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('paper_model_chkpt_{epoch:02d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/', batch_size=32)
-		self.lr_schedule = LearningRateScheduler(lr_schedule)
+		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error', metrics=['mean_absolute_error'])
 		print(model.summary())
 		return model
@@ -158,9 +163,13 @@ if __name__=='__main__':
 	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
-
+	print(K.tensorflow_backend._get_available_gpus())
+	print(tf.test.gpu_device_name())
 	with tf.device('/cpu:0'):
 		cnn = Paper_CNN(1080, 1616, 3)
-	cnn.load_model('paper_model_weights.h5')
+	cnn = multi_gpu_model(cnn, gpus=2)
+	print(K.tensorflow_backend._get_available_gpus())
+	print(tf.test.gpu_device_name())
+	#cnn.load_model('paper_model_weights.h5')
 	cnn.fit_model(batch_size, num_epochs, initial_epoch)
 	print('done')
