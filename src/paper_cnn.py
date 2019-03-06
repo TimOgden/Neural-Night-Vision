@@ -23,86 +23,137 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_model(self):
+		dropout = .5
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 
 				UpSampling2D(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 
 				UpSampling2D(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 
 				UpSampling2D(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 
 				UpSampling2D(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
-				Dropout(.3),
+				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
-		self.save_best = ModelCheckpoint('paper_model_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('paper_model_chkpt_{epoch:02d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
-		self.tensorboard = TensorBoard(log_dir='./logs/', batch_size=32)
-		self.lr_schedule = LearningRateScheduler(self.lr_sched)
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error', metrics=['mean_absolute_error'])
+		
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
+	def build_small_model(self):
+		dropout = .5
+		model = keras.Sequential([
+				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
+				LeakyReLU(),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+				MaxPooling2D((2,2), padding='same'),
 
-	def fit_model(self, batch_size, epochs, initial_epoch):
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+				MaxPooling2D((2,2), padding='same'),
+
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+				MaxPooling2D((2,2), padding='same'),
+
+				UpSampling2D(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+
+				UpSampling2D(),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(32, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+
+				Conv2D(12, (1,1), padding='same', activation=None),
+				Lambda(self.depth_to_space)
+			])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
+		print(model.summary())
+		return model
+	def build_smallest(self):
+		dropout = .5
+		model = keras.Sequential([
+				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
+				Lambda(self.depth_to_space)
+			])
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
+		print(model.summary())
+		return model
+
+	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
-			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size/2)), epochs=epochs, initial_epoch=initial_epoch,
+			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size)), epochs=epochs, initial_epoch=initial_epoch,
 			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26,
-			callbacks=[self.save_best, self.checkpoint, self.tensorboard, self.lr_schedule])
+			callbacks=callbacks)
 
 	def load_model(self, file):
 		self.model = load_model(file)
@@ -118,6 +169,18 @@ class Paper_CNN:
 						continue
 					for x_batch, y_batch in self.datagen.flow(x1,y, shuffle=True):
 						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
+
+	def generate_val_from_file(self, path):
+		# Validation data generator
+		while True:
+			with open(path) as f:
+				for line in f:
+					# create numpy arrays of input data
+					# and labels, from each line in the file
+					x1, y = self.process_line(line)
+					if x1 is None or y is None:
+						continue
+					yield ({'conv2d_1_input': x1}, {'lambda_1': y})
 
 	def process_line(self,line):
 		space = line.index(' ')
@@ -140,36 +203,64 @@ class Paper_CNN:
 		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
 
 	def lr_sched(self, epoch):
+		top = 1e-4
+		bottom = 1e-5
 		if epoch<2000:
-			return 1e-4
+			#return top - epoch*((top-bottom)/(2000-epoch)) # Linear interpolation
+			return top
 		else:
-			return 1e-5
+			return bottom
 
 	def load_model(self, file):
 		self.model.load_weights(file)
+
+	def get_model_memory_usage(self,batch_size, model):
+		shapes_mem_count = 0
+		for l in model.layers:
+			single_layer_mem = 1
+			for s in l.output_shape:
+				if s is None:
+					continue
+				single_layer_mem *= s
+			shapes_mem_count += single_layer_mem
+
+		trainable_count = np.sum([K.count_params(p) for p in set(model.trainable_weights)])
+		non_trainable_count = np.sum([K.count_params(p) for p in set(model.non_trainable_weights)])
+
+		number_size = 4.0
+		if K.floatx() == 'float16':
+			number_size = 2.0
+		if K.floatx() == 'float64':
+			number_size = 8.0
+
+		total_memory = number_size*(batch_size*shapes_mem_count + trainable_count + non_trainable_count)
+		gbytes = np.round(total_memory / (1024.0 ** 3), 3)
+		return gbytes
 
 	def __init__(self, x_res, y_res, n_channels):
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.num_training_samples = 1863
-		self.model = self.build_model()
-		self.datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=20, 
-			zoom_range=.2, vertical_flip=True, shear_range=3)
+		#self.model = self.build_model()
+		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
+		self.datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=15)
+		self.save_best = ModelCheckpoint('./weights/paper_model_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
+		self.checkpoint = ModelCheckpoint('./weights/paper_model_chkpt_{epoch:02d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=4)
+		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
+		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
 	cnn = None
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
-	print(K.tensorflow_backend._get_available_gpus())
-	print(tf.test.gpu_device_name())
-	with tf.device('/cpu:0'):
+	with tf.device('/gpu:0'):
 		cnn = Paper_CNN(1080, 1616, 3)
-	cnn = multi_gpu_model(cnn, gpus=2)
-	print(K.tensorflow_backend._get_available_gpus())
-	print(tf.test.gpu_device_name())
-	#cnn.load_model('paper_model_weights.h5')
-	cnn.fit_model(batch_size, num_epochs, initial_epoch)
+		cnn.model = cnn.build_smallest()
+	#cnn = multi_gpu_model(cnn, gpus=2)
+	if initial_epoch is not 0:
+		cnn.load_model('./weights/paper_model_chkpt_04.h5')
+	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard])
 	print('done')
