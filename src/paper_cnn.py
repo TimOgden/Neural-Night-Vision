@@ -23,7 +23,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_model(self):
-		dropout = .5
+		dropout = .3
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
