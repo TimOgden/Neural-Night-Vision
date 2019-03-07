@@ -143,7 +143,7 @@ class Paper_CNN:
 					if x1 is None or y is None:
 						continue
 					for x_batch, y_batch in self.datagen.flow(x1,y, shuffle=True):
-						yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
+						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
 	def generate_val_from_file(self, path):
 		# Validation data generator
@@ -155,7 +155,7 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					if x1 is None or y is None:
 						continue
-					yield ({'conv2d_1_input': x1}, {'conv2d_3': y})
+					yield ({'conv2d_1_input': x1}, {'lambda_1': y})
 
 	def process_line(self,line):
 		space = line.index(' ')
