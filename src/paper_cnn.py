@@ -103,7 +103,7 @@ class Paper_CNN:
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(64, (3,3), padding='same'),
+				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
 				Dropout(dropout),
 
@@ -226,16 +226,17 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = None
+	cnn = Paper_CNN(1080, 1616, 3, 'full_layers')
+
 	initial_epoch = 0
 	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
-	with tf.device('/gpu:0'):
-		cnn = Paper_CNN(1080, 1616, 3, '4layers')
-		cnn.model = cnn.build_small_model()
-	#cnn = multi_gpu_model(cnn, gpus=2)
+
+	cnn.model = cnn.build_model()
+
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
+
 	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint])
 	print('done')
