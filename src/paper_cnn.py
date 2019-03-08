@@ -91,7 +91,7 @@ class Paper_CNN:
 				Lambda(self.depth_to_space)
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00005), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
@@ -260,14 +260,14 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 1, 'med_layers')
+	cnn = Paper_CNN(1080, 1616, 1, 'full_layers')
 
 	initial_epoch = 0
 	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_small_model()
+	cnn.model = cnn.build_model()
 
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
