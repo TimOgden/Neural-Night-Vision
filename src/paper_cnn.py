@@ -88,7 +88,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Lambda(self.depth_to_space)
+				Reshape((1080,1616,1))
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
@@ -175,7 +175,7 @@ class Paper_CNN:
 					if x1 is None or y is None:
 						continue
 					for x_batch, y_batch in self.train_datagen.flow(x1,y, shuffle=True):
-						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
+						yield ({'conv2d_1_input': x_batch}, {'reshape_1': y_batch})
 
 	def generate_val_from_file(self, path):
 		# Validation data generator
@@ -188,7 +188,7 @@ class Paper_CNN:
 					if x1 is None or y is None:
 						continue
 					for x_batch, y_batch in self.val_datagen.flow(x1,y, shuffle=True):
-						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
+						yield ({'conv2d_1_input': x_batch}, {'reshape_1': y_batch})
 
 	def process_line(self,line):
 		space = line.index(' ')
@@ -208,7 +208,7 @@ class Paper_CNN:
 		return self.model.predict(img)
 
 	def depth_to_space(self, input_tensor):
-		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 1), (1080,1616))
+		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
 
 	def lr_sched(self, epoch):
 		top = .00005
