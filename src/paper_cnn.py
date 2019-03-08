@@ -128,7 +128,7 @@ class Paper_CNN:
 		return model
 
 	def build_small_model(self):
-		dropout = .1
+		dropout = .3
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
@@ -142,7 +142,7 @@ class Paper_CNN:
 				UpSampling2D(),
 				Conv2D(3, (3,3), padding='same'),
 			])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
