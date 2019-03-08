@@ -87,8 +87,8 @@ class Paper_CNN:
 				LeakyReLU(),
 				Dropout(dropout),
 
-				Conv2D(1, (1,1), padding='same', activation=None),
-				#Lambda(self.depth_to_space)
+				Conv2D(12, (1,1), padding='same', activation=None),
+				Lambda(self.depth_to_space)
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
