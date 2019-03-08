@@ -179,8 +179,8 @@ class Paper_CNN:
 		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
 
 	def lr_sched(self, epoch):
-		top = 1e-4
-		bottom = 1e-5
+		top = .00005
+		bottom = .000001
 		if epoch<2000:
 			#return top - epoch*((top-bottom)/(2000-epoch)) # Linear interpolation
 			return top
