@@ -91,7 +91,7 @@ class Paper_CNN:
 				Lambda(self.depth_to_space)
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00005), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
@@ -155,7 +155,8 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					if x1 is None or y is None:
 						continue
-					yield ({'conv2d_1_input': x1}, {'lambda_1': y})
+					for x_batch, y_batch in self.datagen.flow(x1,y, shuffle=True):
+						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
 	def process_line(self,line):
 		space = line.index(' ')
@@ -219,7 +220,8 @@ class Paper_CNN:
 		self.num_training_samples = 1863
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
-		self.datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=15)
+		self.train_datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=15, width_shift_range=.2, height_shift_range=.2)
+		self.val_datagen = ImageDataGenerator(horizontal_flip=True, width_shift_range=.1, height_shift_range=.1)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=10)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
