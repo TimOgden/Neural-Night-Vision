@@ -208,7 +208,7 @@ class Paper_CNN:
 		return self.model.predict(img)
 
 	def depth_to_space(self, input_tensor):
-		return tf.image.resize_bilinear(tf.depth_to_space(np.reshape(input_tensor, (1080,1616,1)), 2), (1080,1616))
+		return tf.image.resize_bilinear(tf.depth_to_space(np.reshape(input_tensor[0], (1080,1616,1)), 2), (1080,1616))
 
 	def lr_sched(self, epoch):
 		top = .00005
