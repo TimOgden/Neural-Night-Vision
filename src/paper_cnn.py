@@ -135,7 +135,7 @@ class Paper_CNN:
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(32, (3,3), padding='same'),
+				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
 				Dropout(dropout),
 
@@ -267,7 +267,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_med_model()
+	cnn.model = cnn.build_small_model()
 
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
