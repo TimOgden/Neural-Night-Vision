@@ -88,7 +88,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Lambda(self.depth_to_space)
+				Lambda(self.reshape)
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
@@ -208,7 +208,11 @@ class Paper_CNN:
 		return self.model.predict(img)
 
 	def depth_to_space(self, input_tensor):
-		return tf.image.resize_bilinear(tf.depth_to_space(np.reshape(input_tensor[0], (1080,1616,1)), 2), (1080,1616))
+		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
+
+	def reshape(self, input_tensor):
+		input_tensor = input_tensor[:1745281]
+		return np.reshape(input_tensor, (1080,1616,1))
 
 	def lr_sched(self, epoch):
 		top = .00005
