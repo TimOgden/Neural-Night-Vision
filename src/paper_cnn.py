@@ -260,7 +260,7 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'med_layers')
+	cnn = Paper_CNN(1080, 1616, 1, 'med_layers')
 
 	initial_epoch = 0
 	batch_size = 128
