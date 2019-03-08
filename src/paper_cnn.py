@@ -194,7 +194,7 @@ class Paper_CNN:
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
-		img_x = cv2.imread(x_train)
+		img_x = cv2.equalizeHist(cv2.imread(x_train))
 		img_y = cv2.imread(y_train)
 		if img_x is None or img_y is None:
 			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
