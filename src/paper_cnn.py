@@ -142,7 +142,7 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					if x1 is None or y is None:
 						continue
-					for x_batch, y_batch in self.datagen.flow(x1,y, shuffle=True):
+					for x_batch, y_batch in self.train_datagen.flow(x1,y, shuffle=True):
 						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
 	def generate_val_from_file(self, path):
@@ -155,7 +155,7 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					if x1 is None or y is None:
 						continue
-					for x_batch, y_batch in self.datagen.flow(x1,y, shuffle=True):
+					for x_batch, y_batch in self.val_datagen.flow(x1,y, shuffle=True):
 						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
 
 	def process_line(self,line):
@@ -240,5 +240,5 @@ if __name__=='__main__':
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
 
-	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint])
+	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint, cnn.lr_schedule])
 	print('done')
