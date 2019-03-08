@@ -112,19 +112,6 @@ class Paper_CNN:
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
-				Conv2D(256, (3,3), padding='same'),
-				LeakyReLU(),
-				Conv2D(256, (3,3), padding='same'),
-				LeakyReLU(),
-				Dropout(dropout),
-
-				UpSampling2D(),
-				Conv2D(128, (3,3), padding='same'),
-				LeakyReLU(),
-				Conv2D(128, (3,3), padding='same'),
-				LeakyReLU(),
-				Dropout(dropout),
-
 				UpSampling2D(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
@@ -136,7 +123,7 @@ class Paper_CNN:
 				Lambda(self.depth_to_space)
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00005), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
