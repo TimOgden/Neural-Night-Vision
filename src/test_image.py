@@ -44,8 +44,11 @@ def process_line(line):
 if __name__=='__main__':
 	short_filename = '../Sony/short/10003_06_0.1s.jpg'
 	long_filename = '../Sony/long/10003_00_10s.jpg'
-	model = Paper_CNN(1080,1616,3)
-	model.load_model('paper_model_weights.h5')
+	model = None
+	with tf.device('/cpu:0'):
+		model = Paper_CNN(1080,1616,3, 'paper_model')
+		model.model = model.build_model()
+		model.load_model('./weights/full_layers_chkpt_0020.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
