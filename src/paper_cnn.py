@@ -140,7 +140,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				UpSampling2D(),
-				Conv2D(3, (3,3), padding='same'),
+				Conv2D(1, (3,3), padding='same'),
 			])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
