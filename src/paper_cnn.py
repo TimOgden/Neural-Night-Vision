@@ -95,6 +95,51 @@ class Paper_CNN:
 		print(model.summary())
 		return model
 
+	def build_med_model(self):
+		dropout = .4
+		model = keras.Sequential([
+				Conv2D(64, (3,3), padding='same', input_shape=(self.x_res, self.y_res, self.n_channels)),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+				MaxPooling2D((2,2), padding='same'),
+
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+				MaxPooling2D((2,2), padding='same'),
+
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(256, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+
+				UpSampling2D(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(128, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+
+				UpSampling2D(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Conv2D(64, (3,3), padding='same'),
+				LeakyReLU(),
+				Dropout(dropout),
+
+				Conv2D(12, (1,1), padding='same', activation=None),
+				Lambda(self.depth_to_space)
+			])
+		
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00005), loss='mean_absolute_error')
+		print(model.summary())
+		return model
+
 	def build_small_model(self):
 		dropout = .1
 		model = keras.Sequential([
@@ -228,17 +273,17 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'full_layers')
+	cnn = Paper_CNN(1080, 1616, 3, 'med_layers')
 
 	initial_epoch = 0
 	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_model()
+	cnn.model = cnn.build_med_model()
 
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
 
-	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint, cnn.lr_schedule])
+	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint])
 	print('done')
