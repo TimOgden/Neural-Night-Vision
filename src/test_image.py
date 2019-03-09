@@ -10,7 +10,7 @@ import time
 
 def reshape_img(img):
 	img = img / 255.
-	return np.reshape(img, (-1, img.shape[0], img.shape[1], 1))
+	return np.reshape(img, (-1, img.shape[0], img.shape[1], 3))
 
 def load_norm_img(file):
 	return cv2.resize(cv2.imread(file), (1616,1080))
@@ -19,7 +19,8 @@ def load_gray(file):
 	return cv2.resize(cv2.imread(file, 0), (1616,1080))
 
 def clean_up_prediction(img):
-	return np.reshape(img, (1080,1616,1)) * 255.
+	return np.reshape(img, (1080,1616,3)) * 255.
+
 def convert_to_rgb(bgr_img):
 	b,g,r = cv2.split(bgr_img)       # get b,g,r
 	return cv2.merge([r,g,b])     # switch it to rgb
@@ -46,9 +47,9 @@ if __name__=='__main__':
 	long_filename = '../Sony/long/10003_00_10s.jpg'
 	model = None
 	with tf.device('/cpu:0'):
-		model = Paper_CNN(1080,1616,1, 'paper_model')
-		model.model = model.build_small_model()
-		model.load_model('./weights/med_layers_best.h5')
+		model = Paper_CNN(1080,1616,3, 'paper_model')
+		model.model = model.build_model()
+		model.load_model('./weights/full_layers_best.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
@@ -58,7 +59,7 @@ if __name__=='__main__':
 	hist = cv2.equalizeHist(gray_original)
 	hist_time = time.time() - hist_time
 	model_time = time.time()
-	y_hat = model.predict(reshape_img(hist))[0]
+	y_hat = model.predict(reshape_img(original_image))[0]
 	y_hat = clean_up_prediction(y_hat)
 	model_time = time.time() - model_time
 	
@@ -75,8 +76,7 @@ if __name__=='__main__':
 	plt.subplot(1,4,4)
 	print('Time for histogram balancing:',hist_time)
 	print('Time for model prediction:', model_time)
-	#plt.imshow(convert_to_rgb(y_hat))
-	pred = np.reshape(y_hat,(y_hat.shape[0],y_hat.shape[1]))
-	print(pred.shape)
-	plt.imshow(pred, cmap='gray')
+	plt.imshow(convert_to_rgb(y_hat))
+	#print(pred.shape)
+	#plt.imshow(pred, cmap='gray')
 	plt.show()
