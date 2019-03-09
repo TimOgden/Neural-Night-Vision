@@ -88,9 +88,9 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Reshape(-1,self.n_channels),
+				Reshape((-1,self.n_channels)),
 				Lambda(lambda x: x[:self.x_res*self.y_res*self.n_channels+1]),
-				Reshape(self.x_res,self.y_res,self.n_channels)
+				Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
