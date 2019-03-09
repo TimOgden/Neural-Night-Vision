@@ -23,7 +23,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_model(self):
-		dropout = .4
+		dropout = .5
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
@@ -88,12 +88,11 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Reshape((-1,self.n_channels)),
-				Lambda(lambda x: x[:self.x_res*self.y_res*self.n_channels]),
+				Lambda(self.depth_to_space)
 				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=5e-6), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
@@ -196,7 +195,7 @@ class Paper_CNN:
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
-		img_x = cv2.equalizeHist(cv2.imread(x_train, 0))
+		img_x = cv2.imread(x_train, 0)
 		img_y = cv2.imread(y_train, 0)
 		if img_x is None or img_y is None:
 			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
@@ -266,10 +265,10 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 1, 'full_layers')
+	cnn = Paper_CNN(1080, 1616, 3, 'full_layers')
 
 	initial_epoch = 0
-	batch_size = 128
+	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 
