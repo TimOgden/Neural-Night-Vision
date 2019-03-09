@@ -23,7 +23,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_model(self):
-		dropout = .5
+		dropout = .4
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
@@ -195,8 +195,8 @@ class Paper_CNN:
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
-		img_x = cv2.imread(x_train, 0)
-		img_y = cv2.imread(y_train, 0)
+		img_x = cv2.imread(x_train)
+		img_y = cv2.imread(y_train)
 		if img_x is None or img_y is None:
 			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
 		img_x = cv2.resize(img_x, (1616,1080)) / 255.
