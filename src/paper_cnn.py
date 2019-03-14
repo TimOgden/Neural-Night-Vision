@@ -23,7 +23,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_model(self):
-		dropout = .4
+		dropout = 0
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				LeakyReLU(),
@@ -92,7 +92,7 @@ class Paper_CNN:
 				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
-		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.SGD(lr=.0005, nesterov=True, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
@@ -260,15 +260,15 @@ class Paper_CNN:
 		self.train_datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=15, width_shift_range=.2, height_shift_range=.2)
 		self.val_datagen = ImageDataGenerator(horizontal_flip=True, width_shift_range=.1, height_shift_range=.1)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=10)
+		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=50)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'small_layers')
+	cnn = Paper_CNN(1080, 1616, 3, 'full_layers')
 
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
