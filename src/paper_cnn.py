@@ -180,7 +180,7 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					np.append(xs,x1)
 					np.append(ys,y)
-					if c % self.batch_size == 0:
+					if c % 64 == 0:
 						for x_batch, y_batch in self.train_datagen.flow(xs,ys, shuffle=True):
 							yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
 						xs = np.array([])
