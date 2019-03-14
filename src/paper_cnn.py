@@ -169,8 +169,8 @@ class Paper_CNN:
 	def generate_arrays_from_file(self,path):
 		while True:
 			with open(path) as f:
-				xs = np.array([])
-				ys = np.array([])
+				xs = []
+				ys = []
 				c = 0
 				for line in f:
 					c+=1
@@ -178,13 +178,13 @@ class Paper_CNN:
 					# create numpy arrays of input data
 					# and labels, from each line in the file
 					x1, y = self.process_line(line)
-					np.append(xs,x1)
-					np.append(ys,y)
+					xs.append(x1)
+					ys.append(y)
 					if c % 64 == 0:
 						for x_batch, y_batch in self.train_datagen.flow(xs,ys, shuffle=True):
 							yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
-						xs = np.array([])
-						ys = np.array([])
+						xs = []
+						ys = []
 
 	def generate_val_from_file(self, path):
 		# Validation data generator
