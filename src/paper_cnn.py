@@ -169,22 +169,14 @@ class Paper_CNN:
 	def generate_arrays_from_file(self,path):
 		while True:
 			with open(path) as f:
-				xs = []
-				ys = []
-				c = 0
 				for line in f:
-					c+=1
-
 					# create numpy arrays of input data
 					# and labels, from each line in the file
 					x1, y = self.process_line(line)
-					xs.append(x1)
-					ys.append(y)
-					if c % 16 == 0:
-						for x_batch, y_batch in self.train_datagen.flow(np.array(xs),np.array(ys), shuffle=True):
-							yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
-						xs = []
-						ys = []
+					if x1 is None or y is None:
+						continue
+					for x_batch, y_batch in self.val_datagen.flow(x1,y, shuffle=True):
+						yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
 
 	def generate_val_from_file(self, path):
 		# Validation data generator
@@ -276,7 +268,7 @@ if __name__=='__main__':
 	cnn = Paper_CNN(1080, 1616, 3, 'small_layers')
 
 	initial_epoch = 0
-	batch_size = 16
+	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 
