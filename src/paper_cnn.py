@@ -180,8 +180,8 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					xs.append(x1)
 					ys.append(y)
-					if c % 64 == 0:
-						for x_batch, y_batch in self.train_datagen.flow(xs,ys, shuffle=True):
+					if c % 16 == 0:
+						for x_batch, y_batch in self.train_datagen.flow(np.array(xs),np.array(ys), shuffle=True):
 							yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
 						xs = []
 						ys = []
@@ -276,7 +276,7 @@ if __name__=='__main__':
 	cnn = Paper_CNN(1080, 1616, 3, 'small_layers')
 
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 16
 	num_epochs = 4000
 	print(batch_size)
 
