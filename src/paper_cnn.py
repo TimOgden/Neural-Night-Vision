@@ -143,7 +143,7 @@ class Paper_CNN:
 				UpSampling2D(),
 				Conv2D(3, (3,3), padding='same'),
 			])
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=1e-5), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
