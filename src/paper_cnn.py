@@ -92,7 +92,7 @@ class Paper_CNN:
 				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001, decay=5e-6), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
 		return model
 
