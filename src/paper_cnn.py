@@ -186,7 +186,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Dropout(dropout),
 
-				Conv2D(1, (1,1), padding='same', activation=None),
+				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space)
 			])
 		
@@ -321,14 +321,14 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'unet')
+	cnn = Paper_CNN(1080, 1616, 3, 'med_model')
 
 	initial_epoch = 0
 	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_unet()
+	cnn.model = cnn.build_med_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
