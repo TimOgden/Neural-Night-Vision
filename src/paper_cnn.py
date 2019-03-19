@@ -22,7 +22,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 
 class Paper_CNN:
 
-	def build_unet(self, pretrained_weights=None, input_size=(self.x_res, self.y_res, self.n_channels)):
+	def build_unet(self, pretrained_weights=None, input_size=(1080, 1616, 3)):
 		inputs = Input(input_size)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1a')(inputs)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1b')(conv1)
