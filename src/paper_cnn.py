@@ -83,6 +83,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
@@ -90,6 +91,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
@@ -97,6 +99,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
@@ -104,6 +107,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
 
@@ -111,6 +115,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(512, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 
 				UpSampling2D(),
@@ -118,6 +123,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(256, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 
 				UpSampling2D(),
@@ -125,6 +131,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(128, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 
 				UpSampling2D(),
@@ -132,6 +139,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 
 				UpSampling2D(),
@@ -139,6 +147,7 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
+				BatchNormalization(),
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
