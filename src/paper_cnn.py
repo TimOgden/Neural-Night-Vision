@@ -6,6 +6,7 @@ from keras.utils.training_utils import multi_gpu_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
 from keras.layers import *
+from keras.optimizers import Adam
 import math
 import numpy as np
 import tensorflow as tf
