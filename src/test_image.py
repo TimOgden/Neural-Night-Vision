@@ -19,7 +19,7 @@ def load_gray(file):
 	return cv2.resize(cv2.imread(file, 0), (1616,1080))
 
 def clean_up_prediction(img):
-	return np.reshape(img, (1080,1616,3)) * 255.
+	return np.reshape(img, (1080,1616,3))
 
 def convert_to_rgb(bgr_img):
 	b,g,r = cv2.split(bgr_img)       # get b,g,r
@@ -49,7 +49,7 @@ if __name__=='__main__':
 	with tf.device('/cpu:0'):
 		model = Paper_CNN(1080,1616,3, 'paper_model')
 		model.model = model.build_model()
-		model.load_model('./weights/full_layers_best.h5')
+		model.load_model('./weights/reg_model_best.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
@@ -76,7 +76,7 @@ if __name__=='__main__':
 	plt.subplot(1,4,4)
 	print('Time for histogram balancing:',hist_time)
 	print('Time for model prediction:', model_time)
-	plt.imshow(convert_to_rgb(y_hat))
+	plt.imshow(y_hat)
 	#print(pred.shape)
 	#plt.imshow(pred, cmap='gray')
 	plt.show()
