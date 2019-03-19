@@ -324,7 +324,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_model()
+	cnn.model = cnn.build_unet()
 
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
