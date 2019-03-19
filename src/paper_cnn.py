@@ -23,7 +23,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 
 class Paper_CNN:
 
-	def build_unet(self, pretrained_weights=None, input_size=(1080, 1616, 3)):
+	def build_unet(self, pretrained_weights=None, input_size=(1080, 1616, 3), dropout=.5):
 		inputs = Input(input_size)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1a')(inputs)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1b')(conv1)
@@ -36,30 +36,33 @@ class Paper_CNN:
 		pool3 = MaxPooling2D(pool_size=(2, 2), name='pool3')(conv3)
 		conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv4a')(pool3)
 		conv4 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv4b')(conv4)
-		drop4 = Dropout(0.5, name='drop4')(conv4)
+		drop4 = Dropout(dropout, name='drop4')(conv4)
 		pool4 = MaxPooling2D(pool_size=(2, 2), name='pool4')(drop4)
 
 		conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv5a')(pool4)
 		conv5 = Conv2D(1024, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv5b')(conv5)
-		drop5 = Dropout(0.5, name='drop5')(conv5)
+		drop5 = Dropout(dropout, name='drop5')(conv5)
 
 		up6 = Conv2D(512, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv6')(UpSampling2D(size = (2,2), name='up1')(drop5))
 		crop = ZeroPadding2D(padding=((1,0),(0,0)))(up6)
 		merge6 = concatenate([drop4,crop], axis = 3)
 		conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv7a')(merge6)
 		conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv7b')(conv6)
+		drop6 = Dropout(dropout, name='drop6')(cov6)
 
-		up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv6))
+		up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop6))
 		merge7 = concatenate([conv3,up7], axis = 3)
 		conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge7)
 		conv7 = Conv2D(256, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv7)
+		drop7 = Dropout(dropout, name='drop7')(conv7)
 
-		up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv7))
+		up8 = Conv2D(128, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop7))
 		merge8 = concatenate([conv2,up8], axis = 3)
 		conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge8)
 		conv8 = Conv2D(128, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv8)
+		drop8 = Dropout(dropout, name='drop8')(conv8)
 
-		up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(conv8))
+		up9 = Conv2D(64, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop8))
 		merge9 = concatenate([conv1,up9], axis = 3)
 		conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
 		conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
