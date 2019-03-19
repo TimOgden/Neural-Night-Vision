@@ -243,9 +243,9 @@ class Paper_CNN:
 						continue
 					if datagen:
 						for x_batch, y_batch in datagen.flow(x1,y, shuffle=True):
-							yield ({'input': x_batch}, {'output': y_batch})
+							yield ({'input_input': x_batch}, {'output': y_batch})
 					else:
-						yield ({'input': x1}, {'output': y})
+						yield ({'input_input': x1}, {'output': y})
 
 	def process_line(self,line):
 		space = line.index(' ')
