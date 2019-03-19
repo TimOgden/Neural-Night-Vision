@@ -1,7 +1,7 @@
 # Let's try this one last time
 import os
 import keras
-from keras.models import load_model
+from keras.models import load_model, Model
 from keras.utils.training_utils import multi_gpu_model
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import ModelCheckpoint, TensorBoard, LearningRateScheduler
