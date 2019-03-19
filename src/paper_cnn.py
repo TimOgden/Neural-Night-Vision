@@ -24,7 +24,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_unet(self, pretrained_weights=None, input_size=(1080, 1616, 3), dropout=.5):
-		inputs = Input(input_size)
+		inputs = Input(input_size, name='input')
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1a')(inputs)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1b')(conv1)
 		pool1 = MaxPooling2D(pool_size=(2, 2), name='pool1')(conv1)
@@ -66,7 +66,7 @@ class Paper_CNN:
 		merge9 = concatenate([conv1,up9], axis = 3)
 		conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(merge9)
 		conv9 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(conv9)
-		conv10 = Conv2D(3, 1, activation = 'sigmoid')(conv9)
+		conv10 = Conv2D(3, 1, activation = 'sigmoid', name='output')(conv9)
 
 		model = Model(input = inputs, output = conv10)
 
@@ -82,7 +82,7 @@ class Paper_CNN:
 	def build_model(self):
 		dropout = 0.75
 		model = keras.Sequential([
-				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
+				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
@@ -154,7 +154,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Lambda(self.depth_to_space)
+				Lambda(self.depth_to_space, name='output')
 				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
@@ -165,7 +165,7 @@ class Paper_CNN:
 	def build_med_model(self):
 		dropout = .4
 		model = keras.Sequential([
-				Conv2D(64, (3,3), padding='same', input_shape=(self.x_res, self.y_res, self.n_channels)),
+				Conv2D(64, (3,3), padding='same', input_shape=(self.x_res, self.y_res, self.n_channels), name='input'),
 				LeakyReLU(),
 				Conv2D(64, (3,3), padding='same'),
 				LeakyReLU(),
@@ -187,7 +187,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
-				Lambda(self.depth_to_space)
+				Lambda(self.depth_to_space, name='output')
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
@@ -197,7 +197,7 @@ class Paper_CNN:
 	def build_small_model(self):
 		dropout = .5
 		model = keras.Sequential([
-				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
+				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
 				Dropout(dropout),
 				MaxPooling2D((2,2), padding='same'),
@@ -207,7 +207,7 @@ class Paper_CNN:
 				Dropout(dropout),
 
 				UpSampling2D(),
-				Conv2D(3, (3,3), padding='same'),
+				Conv2D(3, (3,3), padding='same', name='output'),
 			])
 		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
 		print(model.summary())
@@ -243,9 +243,9 @@ class Paper_CNN:
 						continue
 					if datagen:
 						for x_batch, y_batch in datagen.flow(x1,y, shuffle=True):
-							yield ({'input_1': x_batch}, {'conv2d_10': y_batch})
+							yield ({'input': x_batch}, {'output': y_batch})
 					else:
-						yield ({'input_1': x1}, {'conv2d_10': y})
+						yield ({'input': x1}, {'output': y})
 
 	def process_line(self,line):
 		space = line.index(' ')
