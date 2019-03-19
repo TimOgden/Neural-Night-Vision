@@ -48,7 +48,7 @@ class Paper_CNN:
 		merge6 = concatenate([drop4,crop], axis = 3)
 		conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv7a')(merge6)
 		conv6 = Conv2D(512, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv7b')(conv6)
-		drop6 = Dropout(dropout, name='drop6')(cov6)
+		drop6 = Dropout(dropout, name='drop6')(conv6)
 
 		up7 = Conv2D(256, 2, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal')(UpSampling2D(size = (2,2))(drop6))
 		merge7 = concatenate([conv3,up7], axis = 3)
