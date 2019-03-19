@@ -221,15 +221,15 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt'), 
+		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size)), epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=26,
+			validation_data=self.generate_arrays_from_file('../val.txt'),
 			callbacks=callbacks)
 
 	def load_model(self, file):
 		self.model = load_model(file)
 
-	def generate_arrays_from_file(self,path):
+	def generate_arrays_from_file(self,path,datagen = None):
 		while True:
 			with open(path) as f:
 				for line in f:
@@ -238,21 +238,11 @@ class Paper_CNN:
 					x1, y = self.process_line(line)
 					if x1 is None or y is None:
 						continue
-					for x_batch, y_batch in self.val_datagen.flow(x1,y, shuffle=True):
-						yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
-
-	def generate_val_from_file(self, path):
-		# Validation data generator
-		while True:
-			with open(path) as f:
-				for line in f:
-					# create numpy arrays of input data
-					# and labels, from each line in the file
-					x1, y = self.process_line(line)
-					if x1 is None or y is None:
-						continue
-					for x_batch, y_batch in self.val_datagen.flow(x1,y, shuffle=True):
-						yield ({'conv2d_1_input': x_batch}, {'conv2d_3': y_batch})
+					if datagen:
+						for x_batch, y_batch in datagen.flow(x1,y, shuffle=True):
+							yield ({'conv2d_1_input': x_batch}, {'lambda_1': y_batch})
+					else:
+						yield ({'conv2d_1_input': x1}, {'lambda_1': y})
 
 	def process_line(self,line):
 		space = line.index(' ')
