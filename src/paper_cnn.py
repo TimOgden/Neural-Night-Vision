@@ -150,7 +150,6 @@ class Paper_CNN:
 				LeakyReLU(),
 				Conv2D(32, (3,3), padding='same'),
 				LeakyReLU(),
-				BatchNormalization(),
 				Dropout(dropout),
 
 				Conv2D(12, (1,1), padding='same', activation=None),
@@ -159,7 +158,7 @@ class Paper_CNN:
 			])
 		
 		model.compile(optimizer=Adam(lr=1e-4, decay=1e-5), loss='mean_absolute_error')
-		print(model.summary())
+		#print(model.summary())
 		return model
 
 	def build_med_model(self):
@@ -191,7 +190,7 @@ class Paper_CNN:
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
-		print(model.summary())
+		#print(model.summary())
 		return model
 
 	def build_small_model(self):
@@ -210,7 +209,7 @@ class Paper_CNN:
 				Conv2D(3, (3,3), padding='same', name='output'),
 			])
 		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
-		print(model.summary())
+		#print(model.summary())
 		return model
 
 	def build_smallest(self):
@@ -220,12 +219,12 @@ class Paper_CNN:
 				Conv2D(3, (3,3), padding='same'),
 			])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
-		print(model.summary())
+		#print(model.summary())
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
-			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size)), epochs=epochs, initial_epoch=initial_epoch,
+			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
 			validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=math.ceil(133/batch_size),
 			callbacks=callbacks)
 
@@ -313,10 +312,10 @@ class Paper_CNN:
 		self.num_training_samples = 1863
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
-		self.train_datagen = ImageDataGenerator(horizontal_flip=True, rotation_range=15, width_shift_range=.2, height_shift_range=.2)
+		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=15, width_shift_range=.2, height_shift_range=.2)
 		self.val_datagen = ImageDataGenerator(horizontal_flip=True, width_shift_range=.1, height_shift_range=.1)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=50)
+		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=20)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
@@ -328,7 +327,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_med_model()
+	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
