@@ -194,7 +194,7 @@ class Paper_CNN:
 		return model
 
 	def build_small_model(self):
-		dropout = .5
+		dropout = .25
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
@@ -320,10 +320,10 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'med_model')
+	cnn = Paper_CNN(1080, 1616, 3, 'small_model')
 
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
