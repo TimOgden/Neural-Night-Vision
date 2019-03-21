@@ -79,8 +79,8 @@ def stream(model, recordingTime = 10):
 	cv2.destroyAllWindows()
 if __name__=='__main__':
 	model = Paper_CNN(1080,1616,3, 'paper_model')
-	model.model = model.build_model()
-	model.load_model('./weights/reg_model_best.h5')
-	#load_image(model, '../Sony/test.jpg')
+	model.model = model.build_small_model()
+	model.load_model('./weights/small_model_best.h5')
+	load_image(model, '../Sony/test.jpg')
 	#take_pic(model)
-	stream(model, recordingTime = 30)
+	#stream(model, recordingTime = 30)

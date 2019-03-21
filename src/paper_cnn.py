@@ -254,6 +254,7 @@ class Paper_CNN:
 		img_y = cv2.imread(y_train)
 		if img_x is None or img_y is None:
 			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
+			return None, None
 		img_x = cv2.resize(img_x, (1616,1080)) / 255.
 		img_y = cv2.resize(img_y, (1616,1080)) / 255.
 		img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))

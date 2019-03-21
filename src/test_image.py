@@ -8,6 +8,10 @@ from paper_cnn import Paper_CNN
 from keras.models import load_model
 import time
 
+def show_img(img):
+	plt.imshow(img)
+	plt.show()
+
 def reshape_img(img):
 	img = img / 255.
 	return np.reshape(img, (-1, img.shape[0], img.shape[1], 3))
@@ -40,16 +44,14 @@ def process_line(line):
 	img_x = cv2.resize(cv2.imread(x_train), (1616,1080)) / 255.
 	img_x = np.reshape(img_x, (-1,img_x.shape[0],img_x.shape[1],img_x.shape[2]))
 	return img_x
-
-
-if __name__=='__main__':
+def compare_imgs():
 	short_filename = '../Sony/short/10003_00_0.04s.jpg'
 	long_filename = '../Sony/long/10003_00_10s.jpg'
 	model = None
 	with tf.device('/cpu:0'):
 		model = Paper_CNN(1080,1616,3, 'paper_model')
-		model.model = model.build_model()
-		model.load_model('./weights/reg_model_best.h5')
+		model.model = model.build_small_model()
+		model.load_model('./weights/small_model_best.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
@@ -76,7 +78,29 @@ if __name__=='__main__':
 	plt.subplot(1,4,4)
 	print('Time for histogram balancing:',hist_time)
 	print('Time for model prediction:', model_time)
-	plt.imshow(y_hat)
+	plt.imshow(np.clip(y_hat, 0, 1))
 	#print(pred.shape)
 	#plt.imshow(pred, cmap='gray')
 	plt.show()
+
+def get_maxs():
+	with open('../val.txt', 'r') as f:
+		maxs = {}
+		for line in f:
+			space = line.index(' ')
+			x_train = line[:space].strip()
+			y_train = line[space+1:].strip()
+			img_x = cv2.imread(x_train)
+			maximum = np.max(img_x)
+			if int(maximum) in maxs:
+				maxs[int(maximum)] += 1
+			else:
+				maxs[int(maximum)] = 1
+		print(maxs)
+		plt.bar(list(maxs.keys()),maxs.values())
+		plt.show()
+
+if __name__=='__main__':
+	compare_imgs()
+	
+			
