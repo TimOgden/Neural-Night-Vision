@@ -223,14 +223,14 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
-		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
-		#	validation_data=self.generate_arrays_from_file('../val.txt'), validation_steps=math.ceil(133/batch_size),
-		#	callbacks=callbacks)
-		self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
-			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
-			initial_epoch=initial_epoch,
+		self.model.fit_generator(self.generate_arrays_from_file('../custom_train.txt', self.train_datagen), 
+			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
+			validation_data=self.generate_arrays_from_file('../custom_val.txt'), validation_steps=math.ceil(133/batch_size),
 			callbacks=callbacks)
+		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
+		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
+		#	initial_epoch=initial_epoch,
+		#	callbacks=callbacks)
 
 	def load_model(self, file):
 		self.model = load_model(file)
@@ -320,7 +320,7 @@ class Paper_CNN:
 		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=15, width_shift_range=.2, height_shift_range=.2)
 		self.val_datagen = ImageDataGenerator(horizontal_flip=True, width_shift_range=.1, height_shift_range=.1)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=True, verbose=1, mode='min', period=1)
+		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
