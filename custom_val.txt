@@ -1,0 +1,2 @@
+../myimages/short_018.jpg ../myimages/long_018.jpg
+../myimages/short_019.jpg ../myimages/long_019.jpg
