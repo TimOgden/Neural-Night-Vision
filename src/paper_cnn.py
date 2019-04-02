@@ -325,14 +325,14 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = Paper_CNN(1080, 1616, 3, 'small_model')
+	cnn = Paper_CNN(1080, 1616, 3, 'paper_model')
 
 	initial_epoch = 0
 	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
-	cnn.model = cnn.build_small_model()
+	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
