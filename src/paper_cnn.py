@@ -235,22 +235,44 @@ class Paper_CNN:
 	def load_model(self, file):
 		self.model = load_model(file)
 
-	def generate_arrays_from_file(self,path,datagen=None):
+	def generate_arrays_from_file(self,path,datagen=None,batch_size=1):
 		while True:
 			with open(path) as f:
-				for line in f:
-					# create numpy arrays of input data
-					# and labels, from each line in the file
-					x1, y = self.process_line(line)
-					if x1 is None or y is None:
-						continue
+				if batch_size is 1:
+					for line in f:
+						# create numpy arrays of input data
+						# and labels, from each line in the file
+						x1 = None
+						y = None
+						if batch_size is 1:
+							x1, y = self.process_line(line)
+							if x1 is None or y is None:
+								continue
+							if datagen:
+								for x_batch, y_batch in datagen.flow(x1,y, shuffle=True):
+									yield ({'input_input': x_batch}, {'output': y_batch})
+							else:
+								yield ({'input_input': x1}, {'output': y})
+				else:
+					c = 0
+					x_vals = []
+					y_vals = []
+					for i in range(c, c+batch_size):
+						if i >= len(f):
+							i -= len(f) # wrap around
+
+						x1, y = self.process_line(f[i])
+						x_vals.append(x1)
+						y_vals.append(y)
+
 					if datagen:
-						for x_batch, y_batch in datagen.flow(x1,y, shuffle=True):
+						for x_batch, y_batch in datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True):
 							yield ({'input_input': x_batch}, {'output': y_batch})
 					else:
-						yield ({'input_input': x1}, {'output': y})
+						yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
 
-	def process_line(self,line):
+
+	def process_line(self,line, single=False):
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
@@ -261,9 +283,14 @@ class Paper_CNN:
 			return None, None
 		img_x = cv2.resize(img_x, (1616,1080)) / 255.
 		img_y = cv2.resize(img_y, (1616,1080)) / 255.
-		img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))
-		img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
+		if not single:
+			img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))
+			img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
+		else:
+			img_x = np.reshape(img_x, (self.x_res,self.y_res,self.n_channels))
+			img_y = np.reshape(img_y, (self.x_res,self.y_res,self.n_channels))
 		return img_x, img_y
+
 
 	def predict(self, img):
 		return self.model.predict(img)
