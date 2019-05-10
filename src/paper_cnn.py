@@ -225,7 +225,7 @@ class Paper_CNN:
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', self.train_datagen), 
 			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../unity_val.txt'), validation_steps=math.ceil(133/batch_size),
+			validation_data=self.generate_arrays_from_file('../unity_test.txt'), validation_steps=math.ceil(133/batch_size),
 			callbacks=callbacks)
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
