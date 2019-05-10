@@ -356,7 +356,7 @@ if __name__=='__main__':
 	cnn = Paper_CNN(1080, 1616, 3, 'paper_model')
 
 	initial_epoch = 0
-	batch_size = 4
+	batch_size = 128
 	num_epochs = 4000
 	print(batch_size)
 
