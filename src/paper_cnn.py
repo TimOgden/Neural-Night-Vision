@@ -223,9 +223,9 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		self.model.fit_generator(self.generate_arrays_from_file('../custom_train.txt', self.train_datagen), 
+		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', self.train_datagen), 
 			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../custom_val.txt'), validation_steps=math.ceil(133/batch_size),
+			validation_data=self.generate_arrays_from_file('../unity_val.txt'), validation_steps=math.ceil(133/batch_size),
 			callbacks=callbacks)
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
@@ -279,7 +279,7 @@ class Paper_CNN:
 		img_x = cv2.imread(x_train)
 		img_y = cv2.imread(y_train)
 		if img_x is None or img_y is None:
-			print('img x is none:', img_x is None, '\nimg y is none:', img_y is None)
+			print('img x is none:', x_train, '\nimg y is none:', y_train)
 			return None, None
 		img_x = cv2.resize(img_x, (1616,1080)) / 255.
 		img_y = cv2.resize(img_y, (1616,1080)) / 255.
@@ -352,10 +352,11 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
+	cnn = None
 	cnn = Paper_CNN(1080, 1616, 3, 'paper_model')
 
 	initial_epoch = 0
-	batch_size = 128
+	batch_size = 4
 	num_epochs = 4000
 	print(batch_size)
 
