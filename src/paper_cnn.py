@@ -241,12 +241,15 @@ class Paper_CNN:
 				c = 0
 				x_vals = []
 				y_vals = []
+				lines = f.readlines()
+
 				for i in range(c, c+self.batch_size):
-					length = self.file_len(path)
+
+					length = len(lines)
 					if i >= length:
 						i -= length # wrap around
 
-					x1, y = self.process_line(f[i])
+					x1, y = self.process_line(lines[i])
 					x_vals.append(x1)
 					y_vals.append(y)
 
