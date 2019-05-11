@@ -315,7 +315,7 @@ class Paper_CNN:
 	def load_model(self, file):
 		self.model.load_weights(file)
 
-	def file_len(fname):
+	def file_len(self, fname):
 		with open(fname) as f:
 			for i, l in enumerate(f):
 				pass
