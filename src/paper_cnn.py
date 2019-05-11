@@ -258,6 +258,9 @@ class Paper_CNN:
 						yield ({'input_input': x_batch}, {'output': y_batch})
 				else:
 					yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
+				c+=self.batch_size
+				if c >= self.batch_size:
+					c = 0
 
 
 	def process_line(self,line, single=False):
