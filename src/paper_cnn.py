@@ -263,7 +263,7 @@ class Paper_CNN:
 					c = 0
 
 
-	def process_line(self,line, single=False):
+	def process_line(self,line):
 		space = line.index(' ')
 		x_train = line[:space].strip()
 		y_train = line[space+1:].strip()
@@ -274,12 +274,8 @@ class Paper_CNN:
 			return None, None
 		img_x = cv2.resize(img_x, (1616,1080)) / 255.
 		img_y = cv2.resize(img_y, (1616,1080)) / 255.
-		if not single:
-			img_x = np.reshape(img_x, (-1,self.x_res,self.y_res,self.n_channels))
-			img_y = np.reshape(img_y, (-1,self.x_res,self.y_res,self.n_channels))
-		else:
-			img_x = np.reshape(img_x, (self.x_res,self.y_res,self.n_channels))
-			img_y = np.reshape(img_y, (self.x_res,self.y_res,self.n_channels))
+		img_x = np.reshape(img_x, (self.x_res,self.y_res,self.n_channels))
+		img_y = np.reshape(img_y, (self.x_res,self.y_res,self.n_channels))
 		return img_x, img_y
 
 
@@ -344,7 +340,7 @@ class Paper_CNN:
 		self.val_datagen = ImageDataGenerator(horizontal_flip=True)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
-		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
+		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 		self.callbacks = [self.checkpoint, self.tensorboard]
 
