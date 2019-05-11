@@ -226,7 +226,7 @@ class Paper_CNN:
 		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
 			steps_per_epoch=math.ceil(self.num_training_samples/(self.batch_size)), epochs=epochs,
 			validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
-			validation_steps=math.ceil(130/self.batch_size), callbacks=callbacks)
+			validation_steps=math.ceil(130/self.batch_size), callbacks=self.callbacks)
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
 		#	initial_epoch=initial_epoch,
@@ -340,6 +340,7 @@ class Paper_CNN:
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
+		self.callbacks = [checkpoint, tensorboard]
 
 if __name__=='__main__':
 	
