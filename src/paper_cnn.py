@@ -258,8 +258,9 @@ class Paper_CNN:
 					x_vals = []
 					y_vals = []
 					for i in range(c, c+batch_size):
-						if i >= len(f):
-							i -= len(f) # wrap around
+						length = file_len(path)
+						if i >= length:
+							i -= length # wrap around
 
 						x1, y = self.process_line(f[i])
 						x_vals.append(x1)
@@ -314,6 +315,12 @@ class Paper_CNN:
 	def load_model(self, file):
 		self.model.load_weights(file)
 
+	def file_len(fname):
+		with open(fname) as f:
+			for i, l in enumerate(f):
+				pass
+		return i + 1
+	
 	def get_model_memory_usage(self,batch_size, model):
 		shapes_mem_count = 0
 		for l in model.layers:
