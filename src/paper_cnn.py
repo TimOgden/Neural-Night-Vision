@@ -340,7 +340,7 @@ class Paper_CNN:
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=64)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
-		self.callbacks = [checkpoint, tensorboard]
+		self.callbacks = [self.checkpoint, self.tensorboard]
 
 if __name__=='__main__':
 	
