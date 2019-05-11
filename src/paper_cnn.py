@@ -316,10 +316,12 @@ class Paper_CNN:
 		self.model.load_weights(file)
 
 	def file_len(self, fname):
+		c = 0
 		with open(fname) as f:
-			for i, l in enumerate(f):
+			for i in f:
+				c+=1
 				pass
-		return i + 1
+		return c
 	
 	def get_model_memory_usage(self,batch_size, model):
 		shapes_mem_count = 0
