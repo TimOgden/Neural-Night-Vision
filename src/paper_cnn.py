@@ -189,7 +189,7 @@ class Paper_CNN:
 				Lambda(self.depth_to_space, name='output')
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=.00001), loss='mean_absolute_error')
 		#print(model.summary())
 		return model
 
