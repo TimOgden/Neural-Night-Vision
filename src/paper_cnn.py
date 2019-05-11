@@ -223,10 +223,10 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', self.train_datagen), 
+		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen, batch_size=self.batch_size=), 
 			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, initial_epoch=initial_epoch,
-			validation_data=self.generate_arrays_from_file('../unity_test.txt'), validation_steps=math.ceil(133/batch_size),
-			callbacks=callbacks)
+			validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=self.val_datagen, batch_size=self.batch_size), 
+			validation_steps=math.ceil(133/batch_size), callbacks=callbacks)
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
 		#	initial_epoch=initial_epoch,
@@ -265,7 +265,7 @@ class Paper_CNN:
 						x_vals.append(x1)
 						y_vals.append(y)
 
-					if datagen:
+					if datagen is not None:
 						for x_batch, y_batch in datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True):
 							yield ({'input_input': x_batch}, {'output': y_batch})
 					else:
@@ -357,7 +357,7 @@ if __name__=='__main__':
 	cnn = Paper_CNN(1080, 1616, 3, 'small_model')
 
 	initial_epoch = 0
-	batch_size = 128
+	batch_size = 64
 	num_epochs = 4000
 	print(batch_size)
 
