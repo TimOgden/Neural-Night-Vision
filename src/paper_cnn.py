@@ -224,9 +224,9 @@ class Paper_CNN:
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
-			steps_per_epoch=math.ceil(self.num_training_samples/(batch_size)), epochs=epochs,
+			steps_per_epoch=math.ceil(1190/(self.batch_size)), epochs=epochs,
 			validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
-			validation_steps=math.ceil(130/batch_size), callbacks=self.callbacks)
+			validation_steps=math.ceil(125/self.batch_size), callbacks=self.callbacks)
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
 		#	initial_epoch=initial_epoch,
@@ -258,6 +258,8 @@ class Paper_CNN:
 					for x_batch, y_batch in datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True):
 						print('Hello!')
 						yield ({'input_input': x_batch}, {'output': y_batch})
+						x_batch = None
+						y_batch = None
 				else:
 					yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
 				c+=self.batch_size
@@ -333,7 +335,6 @@ class Paper_CNN:
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
-		self.num_training_samples = 1189
 		self.batch_size = batch_size
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
