@@ -24,7 +24,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="0,1"
 class Paper_CNN:
 
 	def build_unet(self, pretrained_weights=None, input_size=(1080, 1616, 3), dropout=.5):
-		inputs = Input(input_size, name='input')
+		inputs = Input(input_size, name='input_input')
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1a')(inputs)
 		conv1 = Conv2D(64, 3, activation = 'relu', padding = 'same', kernel_initializer = 'he_normal', name='conv1b')(conv1)
 		pool1 = MaxPooling2D(pool_size=(2, 2), name='pool1')(conv1)
