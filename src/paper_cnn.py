@@ -162,7 +162,7 @@ class Paper_CNN:
 		return model
 
 	def build_med_model(self):
-		dropout = .4
+		dropout = 0
 		model = keras.Sequential([
 				Conv2D(64, (3,3), padding='same', input_shape=(self.x_res, self.y_res, self.n_channels), name='input'),
 				LeakyReLU(),
@@ -189,7 +189,7 @@ class Paper_CNN:
 				Lambda(self.depth_to_space, name='output')
 			])
 		
-		model.compile(optimizer=keras.optimizers.Adam(lr=.00001), loss='mean_absolute_error')
+		model.compile(optimizer=keras.optimizers.Adam(lr=1e-5), loss='mean_absolute_error')
 		#print(model.summary())
 		return model
 
