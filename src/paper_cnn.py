@@ -337,11 +337,12 @@ class Paper_CNN:
 		gbytes = np.round(total_memory / (1024.0 ** 3), 3)
 		return gbytes
 
-	def __init__(self, x_res, y_res, n_channels, name):
+	def __init__(self, x_res, y_res, n_channels, name, batch_size):
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.num_training_samples = 1189
+		self.batch_size = batch_size
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
 		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=0, width_shift_range=.2, height_shift_range=.2)
@@ -353,13 +354,14 @@ class Paper_CNN:
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 
 if __name__=='__main__':
-	cnn = None
-	cnn = Paper_CNN(1080, 1616, 3, 'small_model')
+	
 
 	initial_epoch = 0
 	batch_size = 64
 	num_epochs = 4000
-	print(batch_size)
+
+	cnn = None
+	cnn = Paper_CNN(1080, 1616, 3, 'small_model', batch_size)
 
 	cnn.model = cnn.build_unet()
 	print(cnn.model.summary())
