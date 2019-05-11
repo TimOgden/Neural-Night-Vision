@@ -258,7 +258,7 @@ class Paper_CNN:
 					x_vals = []
 					y_vals = []
 					for i in range(c, c+batch_size):
-						length = file_len(path)
+						length = self.file_len(path)
 						if i >= length:
 							i -= length # wrap around
 
