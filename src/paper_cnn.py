@@ -223,10 +223,16 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
-			steps_per_epoch=math.ceil(1190/(self.batch_size)), epochs=epochs,
-			validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
-			validation_steps=math.ceil(125/self.batch_size), callbacks=self.callbacks)
+		short_generator = self.train_datagen.flow_from_directory('screenshots/short')
+		long_generator = self.train_datagen.flow_from_directory('screenshots/long')
+		generator = zip(short_generator, long_generator)
+		self.model.fit_generator(generator, steps_per_epoch=math.ceil(1190/self.batch_size), epochs=10)
+		
+		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
+		#	steps_per_epoch=math.ceil(1190/(self.batch_size)), epochs=epochs,
+		#	validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
+		#	validation_steps=math.ceil(125/self.batch_size), callbacks=self.callbacks)
+		
 		#self.model.fit_generator(self.generate_arrays_from_file('../new_train.txt', self.train_datagen), 
 		#	steps_per_epoch=math.ceil(self.num_training_samples/(batch_size))*2, epochs=epochs, 
 		#	initial_epoch=initial_epoch,
@@ -237,31 +243,29 @@ class Paper_CNN:
 
 	def generate_arrays_from_file(self,path,datagen=None):
 		while True:
-			with open(path) as f:
-				c = 0
-				x_vals = []
-				y_vals = []
-				lines = f.readlines()
 
-				for i in range(c, c+self.batch_size):
+#			with open(path) as f:
+#				c = 0
+#				x_vals = []
+#				y_vals = []
+#				lines = f.readlines()
+#
+#				for i in range(c, c+self.batch_size):
+#
+#					length = len(lines)
+#					if i >= length:
+#						i -= length # wrap around
+#
+#					x1, y = self.process_line(lines[i])
+#					x_vals.append(x1)
+#					y_vals.append(y)
 
-					length = len(lines)
-					if i >= length:
-						i -= length # wrap around
-
-					x1, y = self.process_line(lines[i])
-					x_vals.append(x1)
-					y_vals.append(y)
-
-				if datagen is not None:
-					(x_batch, y_batch) = next(datagen.flow(np.array(x_vals),np.array(y_vals), batch_size=self.batch_size, shuffle=True))
-					#print('Hello!')
-					yield ({'input_input': x_batch}, {'output': y_batch})
-				else:
-					yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
-				c+=self.batch_size
-				if c >= self.batch_size:
-					c = 0
+			if datagen is not None:
+				(x_batch, y_batch) = next(datagen.flow_from_directory('screenshots', batch_size=self.batch_size, shuffle=True))
+				#print('Hello!')
+				yield ({'input_input': x_batch}, {'output': y_batch})
+			else:
+				yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
 
 
 	def process_line(self,line):
@@ -335,9 +339,8 @@ class Paper_CNN:
 		self.batch_size = batch_size
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
-		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=0, width_shift_range=.2, height_shift_range=.2)
+		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=0, width_shift_range=.2, height_shift_range=.2, validation_split=.2)
 		#self.val_datagen = ImageDataGenerator(horizontal_flip=True, width_shift_range=.1, height_shift_range=.1)
-		self.val_datagen = ImageDataGenerator(horizontal_flip=True)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
