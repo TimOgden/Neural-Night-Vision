@@ -254,12 +254,11 @@ class Paper_CNN:
 					y_vals.append(y)
 
 				if datagen is not None:
-
-					for x_batch, y_batch in datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True):
-						print('Hello!')
-						yield ({'input_input': x_batch}, {'output': y_batch})
-						x_batch = None
-						y_batch = None
+					(x_batch, y_batch) =  next(datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True))
+					print('Hello!')
+					yield ({'input_input': x_batch}, {'output': y_batch})
+					x_batch = None
+					y_batch = None
 				else:
 					yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
 				c+=self.batch_size
