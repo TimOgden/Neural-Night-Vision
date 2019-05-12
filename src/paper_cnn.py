@@ -254,11 +254,9 @@ class Paper_CNN:
 					y_vals.append(y)
 
 				if datagen is not None:
-					(x_batch, y_batch) =  next(datagen.flow(np.array(x_vals),np.array(y_vals), shuffle=True))
-					print('Hello!')
+					(x_batch, y_batch) = next(datagen.flow(np.array(x_vals),np.array(y_vals), batch_size=self.batch_size, shuffle=True))
+					#print('Hello!')
 					yield ({'input_input': x_batch}, {'output': y_batch})
-					x_batch = None
-					y_batch = None
 				else:
 					yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
 				c+=self.batch_size
@@ -350,7 +348,7 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 4
+	batch_size = 16
 	num_epochs = 4000
 
 	cnn = None
