@@ -225,7 +225,9 @@ class Paper_CNN:
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		short_generator = self.train_datagen.flow_from_directory('../screenshots/short', class_mode=None)
 		long_generator = self.train_datagen.flow_from_directory('../screenshots/long', class_mode=None)
+		print('zipping generators')
 		generator = zip(short_generator, long_generator)
+		print('done zipping generators')
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(1190/self.batch_size), epochs=10)
 		
 		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
