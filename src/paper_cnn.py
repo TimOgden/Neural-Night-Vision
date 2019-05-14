@@ -279,8 +279,8 @@ class Paper_CNN:
 		if img_x is None or img_y is None:
 			print('img x is none:', x_train, '\nimg y is none:', y_train)
 			return None, None
-		img_x = cv2.resize(img_x, (1616,1080)) / 255.
-		img_y = cv2.resize(img_y, (1616,1080)) / 255.
+		img_x = cv2.resize(img_x, (self.x_res,self.y_res)) / 255.
+		img_y = cv2.resize(img_y, (self.x_res,self.y_res)) / 255.
 		img_x = np.reshape(img_x, (self.x_res,self.y_res,self.n_channels))
 		img_y = np.reshape(img_y, (self.x_res,self.y_res,self.n_channels))
 		return img_x, img_y
@@ -290,7 +290,7 @@ class Paper_CNN:
 		return self.model.predict(img)
 
 	def depth_to_space(self, input_tensor):
-		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (1080,1616))
+		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (self.x_res,self.y_res))
 
 	def reshape(self, input_tensor):
 		input_tensor = input_tensor[:1745281]
