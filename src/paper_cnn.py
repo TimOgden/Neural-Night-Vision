@@ -229,7 +229,7 @@ class Paper_CNN:
 		generator = zip(short_generator, long_generator)
 		print('done zipping generators')
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(1190/self.batch_size), epochs=10)
-		
+		self.model.save('./weights/finished.h5')
 		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
 		#	steps_per_epoch=math.ceil(1190/(self.batch_size)), epochs=epochs,
 		#	validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
