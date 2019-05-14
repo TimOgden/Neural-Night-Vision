@@ -157,7 +157,7 @@ class Paper_CNN:
 				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
-		model.compile(optimizer=Adam(lr=1e-4, decay=1e-5), loss='mean_absolute_error')
+		model.compile(optimizer=Adam(lr=1e-4, decay=1e-6), loss='mean_absolute_error')
 		#print(model.summary())
 		return model
 
