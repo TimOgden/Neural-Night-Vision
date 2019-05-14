@@ -223,11 +223,11 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		short_generator = self.datagen.flow_from_directory('../screenshots/train/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
-		long_generator = self.datagen.flow_from_directory('../screenshots/train/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
+		short_generator = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
+		long_generator = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
 	
-		short_val = self.datagen.flow_from_directory('../screenshots/train/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
-		long_val = self.datagen.flow_from_directory('../screenshots/train/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
+		short_val = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
+		long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
 		print('zipping generators')
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
