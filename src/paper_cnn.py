@@ -223,11 +223,11 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		short_generator = self.train_datagen.flow_from_directory('../screenshots/short', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
-		long_generator = self.train_datagen.flow_from_directory('../screenshots/long', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
+		short_generator = self.datagen.flow_from_directory('../screenshots/train/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
+		long_generator = self.datagen.flow_from_directory('../screenshots/train/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='training')
 	
-		short_val = self.val_datagen.flow_from_directory('../screenshots/short', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
-		long_val = self.val_datagen.flow_from_directory('../screenshots/long', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
+		short_val = self.datagen.flow_from_directory('../screenshots/train/short/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
+		long_val = self.datagen.flow_from_directory('../screenshots/train/long/', class_mode=None, target_size=(self.x_res,self.y_res), subset='validation')
 		print('zipping generators')
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
@@ -346,7 +346,6 @@ class Paper_CNN:
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
 		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
-		self.val_datagen = ImageDataGenerator(horizontal_flip=True)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
