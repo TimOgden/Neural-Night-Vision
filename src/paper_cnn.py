@@ -80,7 +80,7 @@ class Paper_CNN:
 		return model
 
 	def build_model(self):
-		dropout = 0.75
+		dropout = 0.25
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
@@ -357,9 +357,9 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	cnn = Paper_CNN(1080, 1616, 3, 'small_model', batch_size)
+	cnn = Paper_CNN(1080, 1616, 3, 'working_model', batch_size)
 
-	cnn.model = cnn.build_unet()
+	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
 		cnn.load_model('./weights/paper_model_chkpt_04.h5')
