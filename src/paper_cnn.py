@@ -223,8 +223,8 @@ class Paper_CNN:
 		return model
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
-		short_generator = self.train_datagen.flow_from_directory('../screenshots/short', class_mode=None, target_size=(1080,1616))
-		long_generator = self.train_datagen.flow_from_directory('../screenshots/long', class_mode=None, target_size=(1080,1616))
+		short_generator = self.train_datagen.flow_from_directory('../screenshots/short', class_mode=None, target_size=(self.x_res,self.y_res))
+		long_generator = self.train_datagen.flow_from_directory('../screenshots/long', class_mode=None, target_size=(self.x_res,self.y_res))
 		print('zipping generators')
 		generator = zip(short_generator, long_generator)
 		print('done zipping generators')
@@ -357,7 +357,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	cnn = Paper_CNN(1080, 1616, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(540, 808, 3, 'working_model', batch_size)
 
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
