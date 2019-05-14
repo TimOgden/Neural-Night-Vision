@@ -345,7 +345,7 @@ class Paper_CNN:
 		self.batch_size = batch_size
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
-		self.train_datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
+		self.datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
