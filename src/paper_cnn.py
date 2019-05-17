@@ -232,8 +232,9 @@ class Paper_CNN:
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
 		print('done zipping generators')
-		self.model.fit_generator(generator, steps_per_epoch=math.ceil(1052/self.batch_size), epochs=epochs, 
-			validation_data=val_gen, validation_steps=math.ceil(263/self.batch_size), callbacks=self.callbacks)
+		print(next(generator))
+		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
+			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
 		self.model.save('./weights/finished.h5')
 		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt', datagen=self.train_datagen), 
 		#	steps_per_epoch=math.ceil(1190/(self.batch_size)), epochs=epochs,
@@ -348,7 +349,7 @@ class Paper_CNN:
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
 		self.datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='train_loss', save_best_only=False, verbose=1, mode='min', period=5)
+		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 		self.callbacks = [self.checkpoint, self.tensorboard]
