@@ -224,13 +224,14 @@ class Paper_CNN:
 
 	def show_output(self, im_1, im_2):
 		print(im_1.shape)
-		#im_1 = np.reshape(im_1, (im_1.shape[1], im_1.shape[2], im_1.shape[3]))
-		plt.imshow(im_1[2]/255.)
-		plt.show()
+		for i in range(self.batch_size-1):
+			#im_1 = np.reshape(im_1, (im_1.shape[1], im_1.shape[2], im_1.shape[3]))
+			plt.imshow(im_1[i]/255.)
+			plt.show()
 
-		#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
-		plt.imshow(im_2[2]/255.)
-		plt.show()
+			#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
+			plt.imshow(im_2[i]/255.)
+			plt.show()
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		seed = 1
@@ -247,7 +248,7 @@ class Paper_CNN:
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
 		print('done zipping generators')
-		self.show_output(*next(generator))
+		#self.show_output(*next(generator))
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
 			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
 		self.model.save('./weights/finished.h5')
@@ -381,7 +382,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	cnn = Paper_CNN(540, 808, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(int(540/2), int(808/2), 3, 'working_model', batch_size)
 	#cnn = Paper_CNN(1080,1616, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
