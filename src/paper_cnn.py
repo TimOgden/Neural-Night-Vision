@@ -382,7 +382,7 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	cnn = Paper_CNN(int(540/2), int(808/2), 3, 'working_model', batch_size)
+	cnn = Paper_CNN(64, 64, 3, 'working_model', batch_size)
 	#cnn = Paper_CNN(1080,1616, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
