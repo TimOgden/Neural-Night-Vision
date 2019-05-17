@@ -225,23 +225,23 @@ class Paper_CNN:
 	def show_output(self, im_1, im_2):
 		print(im_1.shape)
 		#im_1 = np.reshape(im_1, (im_1.shape[1], im_1.shape[2], im_1.shape[3]))
-		plt.imshow(im_1[0]/255.)
+		plt.imshow(im_1[2]/255.)
 		plt.show()
 
 		#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
-		plt.imshow(im_2[0]/255.)
+		plt.imshow(im_2[2]/255.)
 		plt.show()
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		seed = 1
-		short_generator = self.datagen.flow_from_directory('../screenshots1/short/', class_mode=None,
+		short_generator = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
 			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed)
-		long_generator = self.datagen.flow_from_directory('../screenshots1/long/', class_mode=None,
+		long_generator = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
 			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed)
 	
-		short_val = self.datagen.flow_from_directory('../screenshots1/short/', class_mode=None,
+		short_val = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
 			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed)
-		long_val = self.datagen.flow_from_directory('../screenshots1/long/', class_mode=None,
+		long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
 			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed)
 		print('zipping generators')
 		generator = zip(short_generator, long_generator)
@@ -381,8 +381,8 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	#cnn = Paper_CNN(540, 808, 3, 'working_model', batch_size)
-	cnn = Paper_CNN(1080,1616, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(540, 808, 3, 'working_model', batch_size)
+	#cnn = Paper_CNN(1080,1616, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
