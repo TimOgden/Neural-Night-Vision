@@ -235,7 +235,7 @@ class Paper_CNN:
 			plt.imshow(im_2[i]/255.)
 			plt.show()
 
-	def show_output(self, im_1):
+	def show_output_single(self, im_1):
 		print(im_1.shape)
 		for i in range(self.batch_size-1):
 			plt.imshow(im_1[i]/255.)
