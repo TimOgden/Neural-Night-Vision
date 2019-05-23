@@ -226,11 +226,19 @@ class Paper_CNN:
 		print(im_1.shape)
 		for i in range(self.batch_size-1):
 			#im_1 = np.reshape(im_1, (im_1.shape[1], im_1.shape[2], im_1.shape[3]))
+			plt.subplot(1,2,1)
 			plt.imshow(im_1[i]/255.)
-			plt.show()
+			
 
 			#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
+			plt.subplot(1,2,2)
 			plt.imshow(im_2[i]/255.)
+			plt.show()
+
+	def show_output(self, im_1):
+		print(im_1.shape)
+		for i in range(self.batch_size-1):
+			plt.imshow(im_1[i]/255.)
 			plt.show()
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
@@ -378,7 +386,7 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 16
+	batch_size = 128
 	num_epochs = 4000
 
 	cnn = None
