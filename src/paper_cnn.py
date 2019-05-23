@@ -248,7 +248,7 @@ class Paper_CNN:
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
 		print('done zipping generators')
-		#self.show_output(*next(generator))
+		self.show_output(*next(generator))
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
 			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
 		self.model.save('./weights/finished.h5')
@@ -378,7 +378,7 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 128
+	batch_size = 16
 	num_epochs = 4000
 
 	cnn = None
