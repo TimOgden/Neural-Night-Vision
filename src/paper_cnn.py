@@ -380,7 +380,7 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 32
+	batch_size = 8
 	num_epochs = 4000
 
 	cnn = None
