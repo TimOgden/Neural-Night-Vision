@@ -381,11 +381,11 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 4
+	batch_size = 16
 	num_epochs = 100
 
 	cnn = None
-	cnn = Paper_CNN(int(1080/2), int(1616/2), 3, 'working_model', batch_size)
+	cnn = Paper_CNN(int(1080/3), int(1616/3), 3, 'working_model', batch_size)
 	#cnn = Paper_CNN(128,128, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
