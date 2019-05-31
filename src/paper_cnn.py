@@ -79,8 +79,7 @@ class Paper_CNN:
 
 		return model
 
-	def build_model(self):
-		dropout = 0.5
+	def build_model(self, dropout = .25):
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
@@ -154,11 +153,9 @@ class Paper_CNN:
 
 				Conv2D(12, (1,1), padding='same', activation=None),
 				Lambda(self.depth_to_space, name='output')
-				#Reshape((self.x_res,self.y_res,self.n_channels))
 			])
 		
 		model.compile(optimizer=Adam(lr=1e-4, decay=1e-6), loss='mean_absolute_error')
-		#print(model.summary())
 		return model
 
 	def build_med_model(self):
@@ -252,20 +249,14 @@ class Paper_CNN:
 			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
 		long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
 			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
-		print('zipping generators')
+
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
-		print('done zipping generators')
-		#self.show_output(*next(generator))
-		#self.show_output(next(short_generator), next(long_generator))
+
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
 			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks,
 			max_queue_size=1)
 		self.model.save('./weights/finished.h5')
-		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt'), 
-		#	steps_per_epoch=math.ceil(4399/(self.batch_size)), epochs=epochs,
-		#	validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
-		#	validation_steps=math.ceil(1100/self.batch_size), callbacks=self.callbacks)
 	
 
 
@@ -321,24 +312,8 @@ class Paper_CNN:
 	def depth_to_space(self, input_tensor):
 		return tf.image.resize_bilinear(tf.depth_to_space(input_tensor, 2), (self.x_res,self.y_res))
 
-	def reshape(self, input_tensor):
-		input_tensor = input_tensor[:1745281]
-		return np.reshape(input_tensor, (1080,1616,1))
-
-	def lr_sched(self, epoch):
-		top = .00005
-		bottom = .000001
-		if epoch<2000:
-			#return top - epoch*((top-bottom)/(2000-epoch)) # Linear interpolation
-			return top
-		else:
-			return bottom
-
 	def load_model(self, file):
 		self.model.load_weights(file)
-
-	def file_len(self, fname):
-		return sum(1 for line in open(fname))
 	
 	def get_model_memory_usage(self,batch_size, model):
 		shapes_mem_count = 0
@@ -368,9 +343,6 @@ class Paper_CNN:
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.batch_size = batch_size
-		#self.model = self.build_model()
-		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
-		#self.datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
 		self.datagen = ImageDataGenerator(validation_split=.2, horizontal_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
@@ -385,13 +357,8 @@ if __name__=='__main__':
 	batch_size = 64
 	num_epochs = 100
 
-	cnn = None
 	#cnn = Paper_CNN(int(1080/5), int(1616/5), 3, 'working_model', batch_size)
 	cnn = Paper_CNN(64,64, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
-	print(cnn.model.summary())
-	if initial_epoch is not 0:
-		cnn.load_model('./weights/paper_model_chkpt_04.h5')
 
 	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint])
-	print('done')
