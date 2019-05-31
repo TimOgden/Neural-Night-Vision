@@ -387,7 +387,7 @@ if __name__=='__main__':
 
 	cnn = None
 	#cnn = Paper_CNN(int(1080/5), int(1616/5), 3, 'working_model', batch_size)
-	cnn = Paper_CNN(128,128, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(64,64, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
