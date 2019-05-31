@@ -232,7 +232,7 @@ class Paper_CNN:
 
 			#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
 			plt.subplot(1,2,2)
-			plt.imshow(im_2[i]/255.)
+			plt.imshow(im_2[i+1]/255.)
 			plt.show()
 
 	def show_output_single(self, im_1):
@@ -243,27 +243,27 @@ class Paper_CNN:
 
 	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
 		seed = 1337
-		#short_generator = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
-		#	target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
-		#long_generator = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
-		#	target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
+		short_generator = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
+			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
+		long_generator = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
+			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
 	
-		#short_val = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
-		#	target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
-		#long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
-		#	target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
-		#print('zipping generators')
-		#generator = zip(short_generator, long_generator)
-		#val_gen = zip(short_val, long_val)
-		#print('done zipping generators')
-		#self.show_output(*next(generator))
-		#self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
-		#	validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
-		#self.model.save('./weights/finished.h5')
-		self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt'), 
-			steps_per_epoch=math.ceil(4399/(self.batch_size)), epochs=epochs,
-			validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
-			validation_steps=math.ceil(1100/self.batch_size), callbacks=self.callbacks)
+		short_val = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
+			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
+		long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
+			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
+		print('zipping generators')
+		generator = zip(short_generator, long_generator)
+		val_gen = zip(short_val, long_val)
+		print('done zipping generators')
+		self.show_output(*next(generator))
+		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
+			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
+		self.model.save('./weights/finished.h5')
+		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt'), 
+		#	steps_per_epoch=math.ceil(4399/(self.batch_size)), epochs=epochs,
+		#	validation_data=self.generate_arrays_from_file('../unity_test.txt', datagen=None), 
+		#	validation_steps=math.ceil(1100/self.batch_size), callbacks=self.callbacks)
 	
 
 
@@ -384,8 +384,8 @@ if __name__=='__main__':
 	num_epochs = 4000
 
 	cnn = None
-	cnn = Paper_CNN(int(1080/3), int(1616/3), 3, 'working_model', batch_size)
-	#cnn = Paper_CNN(1080,1616, 3, 'working_model', batch_size)
+	#cnn = Paper_CNN(int(1080/3), int(1616/3), 3, 'working_model', batch_size)
+	cnn = Paper_CNN(64,64, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
