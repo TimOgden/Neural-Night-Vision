@@ -299,9 +299,11 @@ if __name__=='__main__':
 	cnn = Paper_CNN(32,32, 3, 'working_model')
 	cnn.model = cnn.build_model()
 
+	#print(cnn.model.summary())
+	
 	save_best = ModelCheckpoint('./weights/'+ cnn.name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 	checkpoint = ModelCheckpoint('./weights/'+ cnn.name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=batch_size)
 
-	cnn.fit_model(batch_size=batch_size, 
+	cnn.fit_model(batch_size=batch_size,
 		epochs=num_epochs, callbacks=[tensorboard, save_best, checkpoint])
