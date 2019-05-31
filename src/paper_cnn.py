@@ -158,8 +158,7 @@ class Paper_CNN:
 		model.compile(optimizer=Adam(lr=1e-4, decay=1e-6), loss='mean_absolute_error')
 		return model
 
-	def build_med_model(self):
-		dropout = 0
+	def build_med_model(self, dropout = .25):
 		model = keras.Sequential([
 				Conv2D(64, (3,3), padding='same', input_shape=(self.x_res, self.y_res, self.n_channels), name='input'),
 				LeakyReLU(),
@@ -187,11 +186,9 @@ class Paper_CNN:
 			])
 		
 		model.compile(optimizer=keras.optimizers.Adam(lr=1e-5), loss='mean_absolute_error')
-		#print(model.summary())
 		return model
 
-	def build_small_model(self):
-		dropout = .25
+	def build_small_model(self, dropout = .25):
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
@@ -206,55 +203,47 @@ class Paper_CNN:
 				Conv2D(3, (3,3), padding='same', name='output'),
 			])
 		model.compile(optimizer=keras.optimizers.SGD(lr=.0001, nesterov=True, decay=1e-5), loss='mean_absolute_error')
-		#print(model.summary())
 		return model
 
 	def build_smallest(self):
-		dropout = .5
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels)),
 				Conv2D(3, (3,3), padding='same'),
 			])
 		model.compile(optimizer=keras.optimizers.Adam(lr=.0001), loss='mean_absolute_error')
-		#print(model.summary())
 		return model
 
 	def show_output(self, im_1, im_2):
-		print(im_1.shape)
 		for i in range(self.batch_size-1):
-			#im_1 = np.reshape(im_1, (im_1.shape[1], im_1.shape[2], im_1.shape[3]))
 			plt.subplot(1,2,1)
 			plt.imshow(im_1[i]/255.)
 			
-
-			#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
 			plt.subplot(1,2,2)
 			plt.imshow(im_2[i]/255.)
 			plt.show()
 
 	def show_output_single(self, im_1):
-		print(im_1.shape)
 		for i in range(self.batch_size-1):
 			plt.imshow(im_1[i]/255.)
 			plt.show()
 
-	def fit_model(self, batch_size, epochs, initial_epoch, callbacks):
+	def fit_model(self, batch_size=64, epochs=10, callbacks=None):
 		seed = 1337
 		short_generator = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
-			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
+			target_size=(self.x_res,self.y_res), subset='training', batch_size=batch_size, seed=seed, shuffle=True)
 		long_generator = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
-			target_size=(self.x_res,self.y_res), subset='training', batch_size=self.batch_size, seed=seed, shuffle=True)
+			target_size=(self.x_res,self.y_res), subset='training', batch_size=batch_size, seed=seed, shuffle=True)
 	
 		short_val = self.datagen.flow_from_directory('../screenshots/short/', class_mode=None,
-			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
+			target_size=(self.x_res,self.y_res), subset='validation', batch_size=batch_size, seed=seed, shuffle=True)
 		long_val = self.datagen.flow_from_directory('../screenshots/long/', class_mode=None,
-			target_size=(self.x_res,self.y_res), subset='validation', batch_size=self.batch_size, seed=seed, shuffle=True)
+			target_size=(self.x_res,self.y_res), subset='validation', batch_size=batch_size, seed=seed, shuffle=True)
 
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
 
-		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
-			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks,
+		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/batch_size), epochs=epochs, 
+			validation_data=val_gen, validation_steps=math.ceil(1279/batch_size), callbacks=callbacks,
 			max_queue_size=1)
 		self.model.save('./weights/finished.h5')
 	
@@ -262,49 +251,6 @@ class Paper_CNN:
 
 	def load_model(self, file):
 		self.model = load_model(file)
-
-	def generate_arrays_from_file(self,path,datagen=None):
-		while True:
-
-			with open(path) as f:
-				c = 0
-				x_vals = []
-				y_vals = []
-				lines = f.readlines()
-
-				for i in range(c, c+self.batch_size):
-
-					length = len(lines)
-					if i >= length:
-						i -= length # wrap around
-
-					x1, y = self.process_line(lines[i])
-					x_vals.append(x1)
-					y_vals.append(y)
-
-			if datagen is not None:
-				(x_batch, y_batch) = next(datagen.flow_from_directory('screenshots', batch_size=self.batch_size, shuffle=True))
-				#print('Hello!')
-				yield ({'input_input': x_batch}, {'output': y_batch})
-			else:
-				yield ({'input_input': np.array(x_vals)}, {'output': np.array(y_vals)})
-
-
-	def process_line(self,line):
-		space = line.index(' ')
-		x_train = line[:space].strip()
-		y_train = line[space+1:].strip()
-		img_x = cv2.imread(x_train)
-		img_y = cv2.imread(y_train)
-		if img_x is None or img_y is None:
-			print('img x is none:', x_train, '\nimg y is none:', y_train)
-			return None, None
-		img_x = cv2.resize(img_x, (self.x_res,self.y_res)) / 255.
-		img_y = cv2.resize(img_y, (self.x_res,self.y_res)) / 255.
-		img_x = np.reshape(img_x, (self.x_res,self.y_res,self.n_channels))
-		img_y = np.reshape(img_y, (self.x_res,self.y_res,self.n_channels))
-		return img_x, img_y
-
 
 	def predict(self, img):
 		return self.model.predict(img)
@@ -338,27 +284,26 @@ class Paper_CNN:
 		gbytes = np.round(total_memory / (1024.0 ** 3), 3)
 		return gbytes
 
-	def __init__(self, x_res, y_res, n_channels, name, batch_size):
+	def __init__(self, x_res, y_res, n_channels, name):
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.batch_size = batch_size
 		self.datagen = ImageDataGenerator(validation_split=.2, horizontal_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2)
-		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
-		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
+		
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
 		self.callbacks = [self.checkpoint, self.tensorboard, self.save_best]
 
 if __name__=='__main__':
-	
-
-	initial_epoch = 0
 	batch_size = 64
 	num_epochs = 100
 
-	#cnn = Paper_CNN(int(1080/5), int(1616/5), 3, 'working_model', batch_size)
-	cnn = Paper_CNN(64,64, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(64,64, 3, 'working_model')
 	cnn.model = cnn.build_model()
 
-	cnn.fit_model(batch_size, num_epochs, initial_epoch, [cnn.tensorboard, cnn.save_best, cnn.checkpoint])
+	save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
+	checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
+	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
+
+	cnn.fit_model(batch_size=batch_size, 
+		epochs=num_epochs, callbacks=[cnn.tensorboard, cnn.save_best, cnn.checkpoint])
