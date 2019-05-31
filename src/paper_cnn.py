@@ -259,7 +259,8 @@ class Paper_CNN:
 		#self.show_output(*next(generator))
 		#self.show_output(next(short_generator), next(long_generator))
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
-			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
+			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks,
+			max_queue_size=1)
 		self.model.save('./weights/finished.h5')
 		#self.model.fit_generator(self.generate_arrays_from_file('../unity_train.txt'), 
 		#	steps_per_epoch=math.ceil(4399/(self.batch_size)), epochs=epochs,
@@ -385,8 +386,8 @@ if __name__=='__main__':
 	num_epochs = 100
 
 	cnn = None
-	cnn = Paper_CNN(int(1080/5), int(1616/5), 3, 'working_model', batch_size)
-	#cnn = Paper_CNN(128,128, 3, 'working_model', batch_size)
+	#cnn = Paper_CNN(int(1080/5), int(1616/5), 3, 'working_model', batch_size)
+	cnn = Paper_CNN(128,128, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
