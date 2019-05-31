@@ -80,7 +80,7 @@ class Paper_CNN:
 		return model
 
 	def build_model(self):
-		dropout = 0.25
+		dropout = 0.5
 		model = keras.Sequential([
 				Conv2D(32, (3,3), padding='same', input_shape=(self.x_res,self.y_res,self.n_channels), name='input'),
 				LeakyReLU(),
@@ -375,18 +375,18 @@ class Paper_CNN:
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
 		self.lr_schedule = LearningRateScheduler(self.lr_sched)
-		self.callbacks = [self.checkpoint, self.tensorboard]
+		self.callbacks = [self.checkpoint, self.tensorboard, self.save_best]
 
 if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 64
+	batch_size = 16
 	num_epochs = 100
 
 	cnn = None
 	#cnn = Paper_CNN(int(1080/3), int(1616/3), 3, 'working_model', batch_size)
-	cnn = Paper_CNN(64,64, 3, 'working_model', batch_size)
+	cnn = Paper_CNN(128,128, 3, 'working_model', batch_size)
 	cnn.model = cnn.build_model()
 	print(cnn.model.summary())
 	if initial_epoch is not 0:
