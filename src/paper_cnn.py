@@ -301,7 +301,7 @@ if __name__=='__main__':
 
 	save_best = ModelCheckpoint('./weights/'+ cnn.name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 	checkpoint = ModelCheckpoint('./weights/'+ cnn.name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
-	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
+	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=batch_size)
 
 	cnn.fit_model(batch_size=batch_size, 
 		epochs=num_epochs, callbacks=[cnn.tensorboard, cnn.save_best, cnn.checkpoint])
