@@ -289,20 +289,18 @@ class Paper_CNN:
 		self.y_res = y_res
 		self.n_channels = n_channels
 		self.batch_size = batch_size
+		self.name = name
 		self.datagen = ImageDataGenerator(validation_split=.2, horizontal_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2)
-		
-		self.lr_schedule = LearningRateScheduler(self.lr_sched)
-		self.callbacks = [self.checkpoint, self.tensorboard, self.save_best]
 
 if __name__=='__main__':
-	batch_size = 64
+	batch_size = 128
 	num_epochs = 100
 
-	cnn = Paper_CNN(64,64, 3, 'working_model')
+	cnn = Paper_CNN(32,32, 3, 'working_model')
 	cnn.model = cnn.build_model()
 
-	save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
-	checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
+	save_best = ModelCheckpoint('./weights/'+ cnn.name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
+	checkpoint = ModelCheckpoint('./weights/'+ cnn.name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
 
 	cnn.fit_model(batch_size=batch_size, 
