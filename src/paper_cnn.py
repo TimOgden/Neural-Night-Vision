@@ -232,7 +232,7 @@ class Paper_CNN:
 
 			#im_2 = np.reshape(im_2, (im_2.shape[1], im_2.shape[2], im_2.shape[3]))
 			plt.subplot(1,2,2)
-			plt.imshow(im_2[i+1]/255.)
+			plt.imshow(im_2[i]/255.)
 			plt.show()
 
 	def show_output_single(self, im_1):
@@ -256,7 +256,8 @@ class Paper_CNN:
 		generator = zip(short_generator, long_generator)
 		val_gen = zip(short_val, long_val)
 		print('done zipping generators')
-		self.show_output(*next(generator))
+		#self.show_output(*next(generator))
+		#self.show_output(next(short_generator), next(long_generator))
 		self.model.fit_generator(generator, steps_per_epoch=math.ceil(5114/self.batch_size), epochs=epochs, 
 			validation_data=val_gen, validation_steps=math.ceil(1279/self.batch_size), callbacks=self.callbacks)
 		self.model.save('./weights/finished.h5')
@@ -369,7 +370,7 @@ class Paper_CNN:
 		#self.model = self.build_model()
 		#print('Model memory usage:', self.get_model_memory_usage(1,self.model))
 		#self.datagen = ImageDataGenerator(horizontal_flip=True, vertical_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2, rescale=1/255., validation_split=.2)
-		self.datagen = ImageDataGenerator(validation_split=.2)
+		self.datagen = ImageDataGenerator(validation_split=.2, horizontal_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2)
 		self.save_best = ModelCheckpoint('./weights/'+ name + '_best.h5', monitor='val_loss', save_best_only=True, save_weights_only=True, verbose=1, mode='min')
 		self.checkpoint = ModelCheckpoint('./weights/'+ name + '_chkpt_{epoch:04d}.h5', monitor='val_loss', save_best_only=False, verbose=1, mode='min', period=5)
 		self.tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=self.batch_size)
@@ -380,8 +381,8 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 16
-	num_epochs = 4000
+	batch_size = 128
+	num_epochs = 100
 
 	cnn = None
 	#cnn = Paper_CNN(int(1080/3), int(1616/3), 3, 'working_model', batch_size)
