@@ -381,7 +381,7 @@ if __name__=='__main__':
 	
 
 	initial_epoch = 0
-	batch_size = 16
+	batch_size = 64
 	num_epochs = 100
 
 	cnn = None
