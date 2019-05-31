@@ -304,4 +304,4 @@ if __name__=='__main__':
 	tensorboard = TensorBoard(log_dir='./logs/{}'.format(time.time()), batch_size=batch_size)
 
 	cnn.fit_model(batch_size=batch_size, 
-		epochs=num_epochs, callbacks=[cnn.tensorboard, cnn.save_best, cnn.checkpoint])
+		epochs=num_epochs, callbacks=[tensorboard, save_best, checkpoint])
