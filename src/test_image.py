@@ -8,22 +8,24 @@ from paper_cnn import Paper_CNN
 from keras.models import load_model
 import time
 
+width = 128 #Should be 1616
+height = 128 #Should be 1080
 def show_img(img):
 	plt.imshow(img)
 	plt.show()
 
 def reshape_img(img):
-	img = img / 255.
+	#img = img / 255.
 	return np.reshape(img, (-1, img.shape[0], img.shape[1], 3))
 
 def load_norm_img(file):
-	return cv2.resize(cv2.imread(file), (1616,1080))
+	return cv2.resize(cv2.imread(file), (width,height))
 
 def load_gray(file):
-	return cv2.resize(cv2.imread(file, 0), (1616,1080))
+	return cv2.resize(cv2.imread(file, 0), (width,height))
 
 def clean_up_prediction(img):
-	return np.reshape(img, (1080,1616,3))
+	return np.reshape(img, (width,height,3))
 
 def convert_to_rgb(bgr_img):
 	b,g,r = cv2.split(bgr_img)       # get b,g,r
@@ -41,17 +43,20 @@ def generate_arrays_from_file(path):
 def process_line(line):
 	space = line.index(' ')
 	x_train = line[:space].strip()
-	img_x = cv2.resize(cv2.imread(x_train), (1616,1080)) / 255.
+	img_x = cv2.resize(cv2.imread(x_train), (width,height)) / 255.
 	img_x = np.reshape(img_x, (-1,img_x.shape[0],img_x.shape[1],img_x.shape[2]))
 	return img_x
+
 def compare_imgs():
-	short_filename = '../Sony/short/10003_00_0.04s.jpg'
-	long_filename = '../Sony/long/10003_00_10s.jpg'
+	short_filename = '../screenshots/short/short/short-1.jpg'
+	long_filename = '../screenshots/long/long/long-1.jpg'
+	#short_filename = '../myimages/short_001.jpg'
+	#long_filename = '../myimages/long_001.jpg'
 	model = None
 	with tf.device('/cpu:0'):
-		model = Paper_CNN(1080,1616,3, 'paper_model')
-		model.model = model.build_small_model()
-		model.load_model('./weights/small_model_best.h5')
+		model = Paper_CNN(width,height,3, 'paper_model', 1)
+		model.model = model.build_model()
+		model.load_model('./weights/working_model_chkpt_0005.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
@@ -63,24 +68,27 @@ def compare_imgs():
 	model_time = time.time()
 	y_hat = model.predict(reshape_img(original_image))[0]
 	y_hat = clean_up_prediction(y_hat)
+	print(y_hat.shape)
 	model_time = time.time() - model_time
 	
 	
 	#y_hat = model.model.predict_generator(generate_arrays_from_file('../new_test.txt'), steps=50, verbose=1)[0] * 255.
 	plt.subplot(1,4,1)
+	plt.title('Short Exposure')
 	plt.imshow(convert_to_rgb(original_image))
 	#plt.imshow(original_image)
 	plt.subplot(1,4,2)
+	plt.title('Long Exposure')
 	plt.imshow(convert_to_rgb(desired_image))
 	#plt.imshow(desired_image)
 	plt.subplot(1,4,3)
+	plt.title('Histogram Equalizer')
 	plt.imshow(hist, cmap='gray')
 	plt.subplot(1,4,4)
+	plt.title('Prediction')
 	print('Time for histogram balancing:',hist_time)
 	print('Time for model prediction:', model_time)
-	plt.imshow(np.clip(y_hat, 0, 1))
-	#print(pred.shape)
-	#plt.imshow(pred, cmap='gray')
+	plt.imshow(np.clip(y_hat, 0, 256)/255.)
 	plt.show()
 
 def get_maxs():
