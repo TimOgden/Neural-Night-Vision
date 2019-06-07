@@ -288,7 +288,6 @@ class Paper_CNN:
 		self.x_res = x_res
 		self.y_res = y_res
 		self.n_channels = n_channels
-		self.batch_size = batch_size
 		self.name = name
 		self.datagen = ImageDataGenerator(validation_split=.2, horizontal_flip=True, rotation_range=10, width_shift_range=.2, height_shift_range=.2)
 
@@ -297,7 +296,7 @@ if __name__=='__main__':
 	num_epochs = 100
 
 	cnn = Paper_CNN(32,32, 3, 'working_med_model')
-	cnn.model = cnn.build_med_model()
+	cnn.model = cnn.build_med_model(dropout=.5)
 
 	#print(cnn.model.summary())
 
