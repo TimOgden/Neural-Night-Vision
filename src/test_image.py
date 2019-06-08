@@ -47,16 +47,16 @@ def process_line(line):
 	img_x = np.reshape(img_x, (-1,img_x.shape[0],img_x.shape[1],img_x.shape[2]))
 	return img_x
 
-def compare_imgs():
-	short_filename = '../screenshots/short/short/short-1.jpg'
-	long_filename = '../screenshots/long/long/long-1.jpg'
+def compare_imgs(im_num):
+	short_filename = '../screenshots/short/short/short-{}.jpg'.format(im_num)
+	long_filename = '../screenshots/long/long/long-{}.jpg'.format(im_num)
 	#short_filename = '../myimages/short_001.jpg'
 	#long_filename = '../myimages/long_001.jpg'
 	model = None
 	with tf.device('/cpu:0'):
-		model = Paper_CNN(width,height,3, 'paper_model', 1)
-		model.model = model.build_model()
-		model.load_model('./weights/working_model_chkpt_0005.h5')
+		model = Paper_CNN(width,height,3, 'paper_model')
+		model.model = model.build_small_model()
+		model.load_model('./weights/working_small_model_best.h5')
 	original_image = load_norm_img(short_filename)
 	gray_original = load_gray(short_filename)
 	desired_image = load_norm_img(long_filename)
@@ -109,6 +109,7 @@ def get_maxs():
 		plt.show()
 
 if __name__=='__main__':
-	compare_imgs()
+	for i in range (5):
+		compare_imgs(i*4)
 	
 			
